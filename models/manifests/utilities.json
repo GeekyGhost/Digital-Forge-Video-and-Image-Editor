@@ -1,0 +1,27 @@
+{
+  "id": "utilities",
+  "name": "Editor Utility Models",
+  "description": "Transcription and promptable video segmentation baseline.",
+  "estimatedSizeGiB": 4,
+  "minimumFreeAfterInstallGiB": 160,
+  "license": {
+    "name": "Mixed open-source licenses",
+    "url": "https://github.com/openai/whisper/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "Whisper is MIT. SAM 2 code/checkpoints are Apache-2.0; verify the files bundled by each source."
+  },
+  "capabilities": ["transcribe", "translate", "segment", "track-mask"],
+  "sources": [
+    {
+      "repoId": "openai/whisper-large-v3-turbo",
+      "destination": "whisper-large-v3-turbo",
+      "allowPatterns": ["*.json", "*.safetensors", "*.txt", "*.model", "README.md"]
+    },
+    {
+      "repoId": "facebook/sam2.1-hiera-large",
+      "destination": "sam2.1-hiera-large",
+      "allowPatterns": ["*.pt", "*.yaml", "*.json", "README.md", "LICENSE"]
+    }
+  ]
+}
+

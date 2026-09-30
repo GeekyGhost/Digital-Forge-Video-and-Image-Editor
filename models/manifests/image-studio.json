@@ -1,0 +1,31 @@
+{
+  "id": "image-studio",
+  "name": "Image Studio — ZiT, Qwen Edit, and BiRefNet",
+  "description": "Text-to-image generation, FP8 reference-guided editing, and still-image background removal.",
+  "estimatedSizeGiB": 67,
+  "minimumFreeAfterInstallGiB": 100,
+  "license": {
+    "name": "Model-specific upstream licenses",
+    "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "requiresAcceptance": true,
+    "note": "Review the ZiT, Qwen Image Edit, LightX2V Lightning, and BiRefNet licenses before commercial use or redistribution."
+  },
+  "capabilities": ["text-to-image", "reference-image-edit", "fp8-edit", "background-removal", "soft-alpha-matte"],
+  "sources": [
+    { "repoId": "Tongyi-MAI/Z-Image-Turbo", "destination": "Z-Image-Turbo", "allowPatterns": ["*"] },
+    {
+      "repoId": "lightx2v/Qwen-Image-Edit-2511-Lightning",
+      "destination": ".",
+      "allowPatterns": [
+        "qwen_image_edit_2511_fp8_e4m3fn_scaled.safetensors",
+        "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors"
+      ]
+    },
+    {
+      "repoId": "Qwen/Qwen-Image-Edit-2511",
+      "destination": "Qwen-Image-Edit-2511",
+      "allowPatterns": ["model_index.json", "processor/**", "scheduler/**", "text_encoder/**", "tokenizer/**", "vae/**", "transformer/config.json"]
+    },
+    { "repoId": "ZhengPeng7/BiRefNet", "destination": "BiRefNet", "allowPatterns": ["*"] }
+  ]
+}

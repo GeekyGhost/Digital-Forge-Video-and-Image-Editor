@@ -1,0 +1,21 @@
+{
+  "id": "kiwi-edit",
+  "name": "Kiwi-Edit 5B Research Pack",
+  "description": "Instruction and reference-guided clip editing. Experimental until it passes the 14 GiB qualification suite.",
+  "estimatedSizeGiB": 20,
+  "minimumFreeAfterInstallGiB": 180,
+  "license": {
+    "name": "Repository MIT; component model licenses may differ",
+    "url": "https://github.com/showlab/Kiwi-Edit/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "Inspect all upstream base-model and encoder licenses before distributing a build or using outputs commercially."
+  },
+  "capabilities": ["instruction-edit", "reference-edit", "stable-81-frame-edit", "overlap-long-edit"],
+  "sources": [
+    {
+      "repoId": "linyq/kiwi-edit-5b-instruct-reference-diffusers",
+      "destination": "kiwi-edit-5b",
+      "allowPatterns": ["*"]
+    }
+  ]
+}

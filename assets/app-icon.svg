@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="forge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d161a"/>
+      <stop offset="1" stop-color="#030608"/>
+    </linearGradient>
+    <linearGradient id="ember" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffcf33"/>
+      <stop offset="0.55" stop-color="#ff8e2b"/>
+      <stop offset="1" stop-color="#ff3385"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#forge)"/>
+  <rect x="16" y="16" width="480" height="480" rx="82" fill="none" stroke="#1a323c" stroke-width="6"/>
+
+  <!-- Angled DF slab: the Digital Forge brand core -->
+  <path d="M96 132h248l-40 248H96z" fill="url(#ember)"/>
+  <path d="M352 132h34l-40 248h-34z" fill="#ff3385"/>
+  <path d="M396 132h30l-40 248h-30z" fill="#00f0ff"/>
+
+  <!-- Sprocket rail: this is a video editor -->
+  <g fill="#030608" opacity="0.85">
+    <rect x="120" y="164" width="34" height="26" rx="5"/>
+    <rect x="120" y="222" width="34" height="26" rx="5"/>
+    <rect x="120" y="280" width="34" height="26" rx="5"/>
+    <rect x="115" y="338" width="34" height="26" rx="5"/>
+  </g>
+
+  <!-- Play head -->
+  <path d="M206 196l104 60-116 60z" fill="#030608"/>
+</svg>

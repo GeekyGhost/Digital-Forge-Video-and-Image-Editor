@@ -1,0 +1,55 @@
+{
+  "id": "minimax-h3",
+  "name": "MiniMax-H3 (Hailuo 3.0) INT8 ConvRot",
+  "description": "Official MiniMax components with Comfy-Org's published INT8 ConvRot FL2VA denoiser and Qwen3-VL conditioner, all in safetensors. Supports text, image, and first/last-frame generation; LightX2V 8-NFE v1.0 is the default and Base remains available at 50 NFE.",
+  "estimatedSizeGiB": 63,
+  "minimumFreeAfterInstallGiB": 8,
+  "license": {
+    "name": "MiniMax Model License Agreement (Apache-2.0 code)",
+    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "Review the model licence before distributing a build or using outputs commercially. The Comfy-Org quantized derivative uses the MiniMax-H3 community licence; the installer records acceptance locally but does not grant rights."
+  },
+  "capabilities": [
+    "text-to-video",
+    "image-to-video",
+    "keyframe-interpolation",
+    "text-to-audio-video"
+  ],
+  "sources": [
+    {
+      "repoId": "Comfy-Org/MiniMax-H3",
+      "destination": "MiniMax-H3",
+      "allowPatterns": [
+        "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors"
+      ]
+    },
+    {
+      "repoId": "MiniMaxAI/MiniMax-H3",
+      "destination": "MiniMax-H3",
+      "allowPatterns": [
+        "LICENSE",
+        "README.md",
+        "modular_model_index.json",
+        "transformer/config.json",
+        "scheduler/*",
+        "audio_scheduler/*",
+        "tokenizer/*",
+        "processor/*",
+        "vae/*",
+        "audio_vae/*",
+        "text_encoder/config.json"
+      ]
+    },
+    {
+      "repoId": "lightx2v/Minimax-h3-Turbo",
+      "destination": "MiniMax-H3/loras",
+      "allowPatterns": [
+        "README.md",
+        "minimax_h3_fl2v_turbo_4step_v0.1.safetensors",
+        "minimax_h3_fl2v_turbo_8step_v1.0_bf16.safetensors"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Digital Forge Video Studio main-window permissions (plus the VFX Phase 0 spike window, which only opens with AIV_SPIKES=1)",
+  "windows": ["main", "spikes"],
+  "permissions": ["core:default", "dialog:default"]
+}

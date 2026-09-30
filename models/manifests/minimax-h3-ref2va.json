@@ -1,0 +1,42 @@
+{
+  "id": "minimax-h3-ref2va",
+  "name": "MiniMax-H3 Ref2VA INT8 ConvRot",
+  "description": "Optional Comfy-Org published INT8 ConvRot omni-reference transformer and its dedicated LightX2V four-evaluation Turbo adapter, all safetensors. Reuses the installed published H3 conditioner, official VAEs, processor and schedulers.",
+  "estimatedSizeGiB": 21,
+  "minimumFreeAfterInstallGiB": 25,
+  "license": {
+    "name": "MiniMax Model License Agreement (Apache-2.0 adapter code)",
+    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "This optional pack contains a quantized MiniMax-H3 model derivative and a LightX2V adapter. Review both upstream licences before use or redistribution."
+  },
+  "capabilities": [
+    "reference-image-to-video",
+    "reference-video-to-video",
+    "reference-audio-to-video",
+    "mixed-reference-to-audio-video"
+  ],
+  "sources": [
+    {
+      "repoId": "Comfy-Org/MiniMax-H3",
+      "destination": "MiniMax-H3",
+      "allowPatterns": [
+        "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+      ]
+    },
+    {
+      "repoId": "MiniMaxAI/MiniMax-H3",
+      "destination": "MiniMax-H3",
+      "allowPatterns": [
+        "transformer_ref/config.json"
+      ]
+    },
+    {
+      "repoId": "lightx2v/Minimax-h3-Turbo",
+      "destination": "MiniMax-H3/loras",
+      "allowPatterns": [
+        "minimax_h3_ref2v_turbo_4step_v0.1_bf16.safetensors"
+      ]
+    }
+  ]
+}

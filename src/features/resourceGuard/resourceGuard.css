@@ -1,0 +1,20 @@
+/* Resource guard warning (VFX Phase 0, task 0.1). Builds on .modal-backdrop / .settings-dialog. */
+.resource-guard-dialog { width: min(620px, calc(100vw - 32px)); z-index: 1001; }
+.resource-guard-dialog .dialog-heading strong { color: var(--accent-gold); }
+.resource-guard-meters { list-style: none; margin: 14px 0 10px; padding: 0; display: grid; gap: 6px; }
+.resource-guard-meters li {
+  display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: baseline;
+  padding: 7px 10px; border: 1px solid var(--border-glow); border-radius: 4px; background: var(--bg-black);
+}
+.resource-guard-meters li span { color: var(--text-muted); font: 11px var(--font-code); text-transform: uppercase; letter-spacing: .06em; }
+.resource-guard-meters li b { color: var(--text-bright); font: 600 13px var(--font-body); }
+.resource-guard-meters li.short { border-color: var(--accent-red); }
+.resource-guard-meters li.short b { color: var(--accent-red); }
+.resource-guard-holders { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 12px; }
+.resource-guard-holders th { text-align: left; color: var(--text-muted); font: 11px var(--font-code); padding: 4px 6px; border-bottom: 1px solid var(--border-glow); }
+.resource-guard-holders td { padding: 5px 6px; color: var(--text-primary); border-bottom: 1px solid rgba(255, 255, 255, .05); }
+.resource-guard-holders td:nth-child(2), .resource-guard-holders td:nth-child(3) { font-family: var(--font-code); white-space: nowrap; }
+.resource-guard-holders tr.known-offender td:first-child { color: var(--accent-gold); font-weight: 700; }
+.resource-guard-holders tr.this-app td:first-child { color: var(--accent-blue); }
+.resource-guard-footnote { display: block; color: var(--text-muted); font-size: 11px; margin: 4px 0; }
+.resource-guard-dialog .dialog-actions { flex-wrap: wrap; }

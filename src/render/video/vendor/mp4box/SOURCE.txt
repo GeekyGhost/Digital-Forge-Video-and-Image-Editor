@@ -1,0 +1,2 @@
+mp4box.js 2.4.1 (npm), BSD-3-Clause, https://github.com/gpac/mp4box.js. Vendored for the VFX Phase 0 decode
+spike, moved here in VFX Phase 3 so src/render/video/ does not depend on spikes/ (which is removable).

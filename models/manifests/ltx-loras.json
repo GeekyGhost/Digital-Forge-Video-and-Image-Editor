@@ -1,0 +1,36 @@
+{
+  "id": "ltx-loras",
+  "name": "LTX 2.3 Adapter LoRAs",
+  "description": "Foley V2A IC-LoRA for video-conditioned audio (audio that actually syncs to the picture), and the distilled 384 LoRA used by keyframe interpolation.",
+  "estimatedSizeGiB": 3,
+  "minimumFreeAfterInstallGiB": 20,
+  "license": {
+    "name": "LTX-2 Community License Agreement",
+    "url": "https://github.com/Lightricks/LTX-2/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "The Foley V2A LoRA is a gated repository. Accept its terms on its Hugging Face page and authenticate locally (huggingface-cli login) before installing; the installer records acceptance but cannot grant access."
+  },
+  "capabilities": [
+    "video-to-audio",
+    "foley",
+    "keyframe-interpolation"
+  ],
+  "sources": [
+    {
+      "repoId": "Lightricks/LTX-2.3-22b-LoRA-Foley-V2A",
+      "destination": "loras/ltx",
+      "allowPatterns": [
+        "README.md",
+        "ltx-2.3-22b-lora-foley-v2a-1.0.safetensors",
+        "ltx-2.3-foley-v2a.json"
+      ]
+    },
+    {
+      "repoId": "Lightricks/LTX-2.3",
+      "destination": "loras/ltx",
+      "allowPatterns": [
+        "ltx-2.3-22b-distilled-lora-384-1.1.safetensors"
+      ]
+    }
+  ]
+}

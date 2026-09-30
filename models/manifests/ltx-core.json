@@ -1,0 +1,42 @@
+{
+  "id": "ltx-core",
+  "name": "LTX 2.3 Distilled Core",
+  "description": "16 GB-oriented first/last-frame, image/text video generation, clip extension, synchronized audio, retake and video-to-audio workflows.",
+  "estimatedSizeGiB": 100,
+  "minimumFreeAfterInstallGiB": 180,
+  "license": {
+    "name": "LTX-2 Community License Agreement",
+    "url": "https://github.com/Lightricks/LTX-2/blob/main/LICENSE",
+    "requiresAcceptance": true,
+    "note": "Review eligibility, distribution, revenue and competitive-use restrictions before use. The installer records acceptance locally but does not grant rights."
+  },
+  "capabilities": ["keyframe-interpolation", "image-to-video", "text-to-video", "clip-extend", "video-to-audio", "retake"],
+  "sources": [
+    {
+      "repoId": "Lightricks/LTX-2.3-fp8",
+      "destination": "LTX-2.3",
+      "allowPatterns": [
+        "LICENSE",
+        "README.md",
+        "ltx-2.3-22b-distilled-fp8.safetensors"
+      ]
+    },
+    {
+      "repoId": "Lightricks/LTX-2.3",
+      "destination": "LTX-2.3",
+      "revision": "7caa482d5cd10a2eae6b34cb48f093ebc45a263e",
+      "allowPatterns": [
+        "LICENSE",
+        "README.md",
+        "ltx-2.3-22b-distilled-1.1.safetensors",
+        "ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+        "ltx-2.3-temporal-upscaler-x2-1.0.safetensors"
+      ]
+    },
+    {
+      "repoId": "google/gemma-3-12b-it-qat-q4_0-unquantized",
+      "destination": "gemma-3-12b",
+      "allowPatterns": ["*"]
+    }
+  ]
+}

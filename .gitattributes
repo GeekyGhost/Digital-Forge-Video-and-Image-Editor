@@ -1,0 +1,14 @@
+# The whole tree is LF, including the .bat launchers, which work as-is on Windows.
+# Normalising to LF keeps contributors on other platforms from producing whole-file diffs —
+# the exact noise vendor\LTX-2 shows today (327 "modified" files that are only line endings).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.gif binary
+*.mp4 binary
+*.wav binary
+*.safetensors binary
+*.pt binary

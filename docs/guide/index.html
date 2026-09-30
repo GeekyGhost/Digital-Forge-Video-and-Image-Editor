@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Forge User Guide</title>
+<meta name="description" content="How to use every workspace, tool and model in Digital Forge Video and Image Editor.">
+<meta name="color-scheme" content="dark">
+<style>
+/*
+  Digital Forge user guide. One self-contained file: no web fonts, no CDN, no network requests,
+  so it opens offline from the repo exactly as it does on GitHub Pages.
+  Colours are the editor's own tokens (src/styles.css) and keep their meaning here:
+  blue = structure and links, gold = where you are, pink = a step that runs a model on the GPU,
+  green = ready, orange = the Forge mark.
+*/
+:root {
+  color-scheme: dark;
+  --steel-0: #050a0c;
+  --steel-1: #0b1418;
+  --steel-2: #101c22;
+  --steel-3: #16262e;
+  --line: #1d3842;
+  --line-dim: #142830;
+  --ink: #cfeaf1;
+  --ink-bright: #f0fdff;
+  --ink-muted: #83aeb9;
+  --blue: #00f0ff;
+  --blue-soft: #6fdcf0;
+  --gold: #ffcf33;
+  --pink: #ff4d94;
+  --green: #39ff88;
+  --orange: #ff8e2b;
+  --red: #ff6464;
+  --display: "Bahnschrift", "DIN Alternate", "Barlow Semi Condensed", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --body: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+  --rail: 280px;
+  --measure: 76ch;
+  --cut: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  --cut-sm: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body {
+  margin: 0; background: var(--steel-0); color: var(--ink);
+  font: 16px/1.62 var(--body); -webkit-font-smoothing: antialiased;
+  background-image: linear-gradient(var(--line-dim) 1px, transparent 1px), linear-gradient(90deg, var(--line-dim) 1px, transparent 1px);
+  background-size: 48px 48px; background-attachment: fixed;
+}
+a { color: var(--blue-soft); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+code, pre, kbd { font-family: var(--mono); }
+code { font-size: .88em; color: var(--gold); background: var(--steel-2); padding: .08em .35em; border: 1px solid var(--line-dim); overflow-wrap: anywhere; }
+pre { background: var(--steel-1); border: 1px solid var(--line); padding: 12px 14px; overflow-x: auto; font-size: .86rem; line-height: 1.5; }
+pre code { background: none; border: 0; padding: 0; color: var(--ink); }
+kbd { font-size: .8rem; color: var(--ink-bright); background: var(--steel-3); border: 1px solid var(--line); border-bottom-width: 2px; padding: .05em .45em; white-space: nowrap; }
+.ui { font-family: var(--display); font-weight: 600; font-size: .95em; color: var(--ink-bright); background: var(--steel-3); padding: .02em .5em .06em; clip-path: var(--cut-sm); white-space: nowrap; }
+.gpu { display: inline-block; font-family: var(--display); font-size: .74rem; font-weight: 700; letter-spacing: .02em; color: #1a0610; background: var(--pink); padding: 0 .5em; margin-left: .35em; clip-path: var(--cut-sm); vertical-align: 2px; }
+.ok { color: var(--green); font-weight: 600; }
+.warn { color: var(--gold); }
+h1, h2, h3, h4 { font-family: var(--display); color: var(--ink-bright); line-height: 1.15; font-weight: 600; font-stretch: 87.5%; }
+h1 { font-size: clamp(2.3rem, 5.2vw, 3.8rem); margin: 0 0 .3em; letter-spacing: -.01em; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.15rem); margin: 0 0 .5em; }
+h3 { font-size: 1.32rem; margin: 2.2em 0 .5em; color: var(--ink-bright); }
+h4 { font-size: 1.06rem; margin: 1.6em 0 .4em; color: var(--blue-soft); }
+p, ul, ol, table, .callout, pre, figure, details { max-width: var(--measure); }
+p { margin: 0 0 1em; }
+ul, ol { padding-left: 1.3em; margin: 0 0 1em; }
+li { margin: .25em 0; }
+li::marker { color: var(--ink-muted); }
+strong { color: var(--ink-bright); }
+
+/* ------------------------------------------------------------------ masthead */
+.masthead {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px; background: rgba(5, 10, 12, .94); border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+}
+.mark { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink-bright); flex: none; }
+.mark b { display: grid; place-items: center; width: 38px; height: 34px; background: var(--orange); color: #140800; font: 800 16px/1 var(--display); clip-path: var(--cut); }
+.mark span { font: 600 1.05rem/1.1 var(--display); font-stretch: 87.5%; }
+.mark small { display: block; font: 400 .78rem/1.2 var(--body); color: var(--ink-muted); }
+.search { position: relative; flex: 1; max-width: 560px; margin-left: auto; }
+.search input {
+  width: 100%; padding: 9px 12px 9px 36px; background: var(--steel-1); color: var(--ink-bright);
+  border: 1px solid var(--line); font: 15px var(--body);
+}
+.search input::placeholder { color: var(--ink-muted); }
+.search svg { position: absolute; left: 11px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; stroke: var(--ink-muted); }
+.search kbd { position: absolute; right: 9px; top: 50%; translate: 0 -50%; }
+.results {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); max-height: min(70vh, 560px); overflow: auto;
+  background: var(--steel-1); border: 1px solid var(--line); box-shadow: 0 18px 40px rgba(0,0,0,.6); display: none;
+}
+.results.open { display: block; }
+.results a { display: block; padding: 9px 14px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line-dim); }
+.results a:hover, .results a.active { background: var(--steel-3); }
+.results a b { color: var(--ink-bright); font-family: var(--display); font-weight: 600; }
+.results a small { display: block; color: var(--ink-muted); font-size: .84rem; }
+.results mark { background: none; color: var(--gold); }
+.results .none { padding: 12px 14px; color: var(--ink-muted); }
+.menu-toggle { display: none; background: var(--steel-2); color: var(--ink-bright); border: 1px solid var(--line); padding: 8px 12px; font: 600 .95rem var(--display); cursor: pointer; }
+
+/* ------------------------------------------------------------------ shell */
+.shell { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); }
+.rail {
+  position: sticky; top: 57px; height: calc(100vh - 57px); overflow-y: auto; padding: 20px 14px 40px 20px;
+  border-right: 1px solid var(--line); background: rgba(8, 15, 18, .92);
+}
+.rail h5 { margin: 1.2em 0 .35em; font: 600 .98rem var(--display); font-stretch: 87.5%; color: var(--ink-bright); }
+.rail h5:first-child { margin-top: 0; }
+.rail a { display: block; padding: 3px 0 3px 12px; margin-left: 2px; font-size: .9rem; color: var(--ink-muted); text-decoration: none; border-left: 2px solid var(--line-dim); }
+.rail a:hover { color: var(--ink-bright); border-left-color: var(--blue); }
+.rail a.here { color: var(--gold); border-left-color: var(--gold); }
+main { padding: 36px clamp(18px, 4vw, 56px) 120px; min-width: 0; }
+section.chapter { padding: 56px 0 8px; border-top: 1px solid var(--line); }
+section.chapter:first-of-type { border-top: 0; padding-top: 8px; }
+.chapter > .kicker { font: 600 .95rem var(--display); color: var(--orange); margin: 0 0 .2em; }
+.lede { font-size: 1.12rem; color: var(--ink); max-width: 68ch; }
+
+/* ------------------------------------------------------------------ hero: the editor map */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(20px, 3vw, 44px); align-items: start; }
+.hero p { font-size: 1.08rem; }
+.map { background: var(--steel-1); border: 1px solid var(--line); padding: 10px; }
+.map-grid {
+  display: grid; gap: 4px; font-family: var(--display); font-size: .82rem;
+  grid-template-columns: 1fr 2.2fr 1.2fr;
+  grid-template-rows: 30px 26px 170px 104px 22px;
+  grid-template-areas: "top top top" "ws ws ws" "bin mon insp" "tl tl tl" "st st st";
+}
+.map-grid a {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-start; gap: 2px;
+  padding: 6px 8px; background: var(--steel-2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; overflow: hidden;
+}
+.map-grid a:hover, .map-grid a:focus-visible, .map-grid a.lit { border-color: var(--gold); background: #1c2a24; color: var(--ink-bright); }
+.map-grid a small { font-family: var(--body); color: var(--ink-muted); font-size: .74rem; line-height: 1.3; }
+.m-top { grid-area: top; flex-direction: row !important; align-items: center; gap: 14px !important; }
+.m-top i { font-style: normal; color: var(--ink-muted); }
+.m-ws { grid-area: ws; display: flex; gap: 4px; padding: 0 !important; background: none !important; border: 0 !important; }
+.m-ws a { flex: 1; flex-direction: row; align-items: center; padding: 0 10px; clip-path: var(--cut-sm); border: 0; background: var(--steel-3); }
+.m-ws a.video { background: #1a2a1f; color: var(--gold); }
+.m-bin { grid-area: bin; } .m-mon { grid-area: mon; } .m-insp { grid-area: insp; } .m-tl { grid-area: tl; } .m-st { grid-area: st; justify-content: center !important; padding: 0 8px !important; }
+.m-mon::after { content: ""; position: absolute; inset: 50px 18px 14px; border: 1px dashed var(--line); background: linear-gradient(135deg, #0a1216, #13232a); }
+.m-tl .lanes { display: grid; gap: 2px; margin-top: 3px; }
+.m-tl .lanes span { height: 9px; background: var(--steel-3); position: relative; }
+.m-tl .lanes span::before { content: attr(data-n); position: absolute; left: 3px; top: -3px; font-size: 9px; color: var(--ink-muted); }
+.m-tl .lanes span.v1 { background: linear-gradient(90deg, var(--steel-3) 8%, #1e4b58 8% 42%, #2c3a18 42% 70%, var(--steel-3) 70%); }
+.m-tl .lanes span.a1 { background: linear-gradient(90deg, var(--steel-3) 8%, #243a4a 8% 70%, var(--steel-3) 70%); }
+.map-caption { min-height: 3.4em; margin: 10px 2px 0; font-size: .92rem; color: var(--ink-muted); }
+.map-caption b { color: var(--gold); font-family: var(--display); }
+
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 28px 0 8px; max-width: none; }
+.flow a { position: relative; padding: 12px 22px 12px 14px; background: var(--steel-2); color: var(--ink); text-decoration: none; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 12px 50%); margin-right: -8px; }
+.flow a:first-child { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%); }
+.flow a:nth-child(even) { background: var(--steel-3); }
+.flow a:hover { background: #22301f; }
+.flow b { display: block; font-family: var(--display); color: var(--ink-bright); font-size: .98rem; }
+.flow small { color: var(--ink-muted); font-size: .8rem; line-height: 1.35; display: block; }
+
+/* ------------------------------------------------------------------ content blocks */
+table { width: 100%; border-collapse: collapse; margin: .6em 0 1.4em; font-size: .93rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line-dim); }
+th { font-family: var(--display); font-weight: 600; color: var(--ink-bright); background: var(--steel-2); border-bottom-color: var(--line); }
+td:first-child { color: var(--ink-bright); white-space: nowrap; }
+table.wide { max-width: none; }
+.tablewrap { overflow-x: auto; max-width: var(--measure); }
+.tablewrap.wide { max-width: none; }
+.callout { border-left: 3px solid var(--blue); background: var(--steel-1); padding: 12px 16px; margin: 1.2em 0; }
+.callout.tip { border-left-color: var(--green); }
+.callout.careful { border-left-color: var(--gold); }
+.callout > b:first-child { font-family: var(--display); color: var(--ink-bright); display: block; margin-bottom: .2em; }
+.callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+.opens { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; color: var(--ink-muted); margin: -.2em 0 1.2em; }
+.opens b { color: var(--ink); font-weight: 600; }
+details { background: var(--steel-1); border: 1px solid var(--line); margin: 1em 0; }
+details > summary { cursor: pointer; padding: 10px 14px; font: 600 1rem var(--display); color: var(--ink-bright); list-style: none; }
+details > summary::before { content: "+"; display: inline-block; width: 1.2em; color: var(--blue); }
+details[open] > summary::before { content: "\2212"; }
+details > div { padding: 2px 16px 12px; }
+ol.steps { counter-reset: step; list-style: none; padding: 0; }
+ol.steps > li { counter-increment: step; position: relative; padding: 2px 0 8px 42px; margin: 0; }
+ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 2px; width: 28px; height: 24px; display: grid; place-items: center; font: 700 .85rem var(--display); color: #041014; background: var(--blue-soft); clip-path: var(--cut-sm); }
+
+/* ------------------------------------------------------------------ interactive catalogues */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: .4em 0 1em; }
+.filters button, .chip {
+  font: 600 .86rem var(--display); color: var(--ink); background: var(--steel-2); border: 1px solid var(--line);
+  padding: 5px 12px; cursor: pointer; clip-path: var(--cut-sm);
+}
+.filters button[aria-pressed="true"] { background: var(--gold); color: #1a1400; border-color: var(--gold); }
+.filters input { flex: 1; min-width: 180px; padding: 6px 10px; background: var(--steel-1); border: 1px solid var(--line); color: var(--ink-bright); font: 14px var(--body); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; margin: 0 0 1.5em; }
+.card { background: var(--steel-1); border: 1px solid var(--line); padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+.card h4 { margin: 0; color: var(--ink-bright); font-size: 1.08rem; }
+.card .by { color: var(--ink-muted); font-size: .84rem; margin-top: -4px; }
+.card p { margin: 0; font-size: .92rem; }
+.card dl { margin: 4px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: .84rem; }
+.card dt { color: var(--ink-muted); }
+.card dd { margin: 0; color: var(--ink); }
+.card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.card .tags span { font: 600 .74rem var(--display); color: var(--blue-soft); border: 1px solid var(--line); padding: 0 6px; }
+.card.hidden, .recipe.hidden, tr.hidden { display: none; }
+.count { color: var(--ink-muted); font-size: .88rem; margin: -.4em 0 .8em; }
+.recipe { background: var(--steel-1); border: 1px solid var(--line); margin: 0 0 12px; max-width: 86ch; }
+.recipe > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.recipe > summary .where { font: 400 .84rem var(--body); color: var(--ink-muted); }
+.recipe > summary .progress { margin-left: auto; font: 600 .82rem var(--display); color: var(--green); }
+.recipe ol { list-style: none; padding: 0; margin: 4px 0 8px; }
+.recipe li { display: grid; grid-template-columns: 26px 1fr; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line-dim); }
+.recipe li:last-child { border-bottom: 0; }
+.recipe input[type="checkbox"] { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--green); }
+.recipe li.done span { color: var(--ink-muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.recipe .why { font-size: .9rem; color: var(--ink-muted); margin: 6px 0 4px; }
+.recipe .reset { font: 600 .8rem var(--display); color: var(--ink-muted); background: none; border: 1px solid var(--line); padding: 3px 10px; cursor: pointer; margin-bottom: 6px; }
+.catalog td:first-child { white-space: normal; min-width: 150px; }
+.swatch-row { display: flex; flex-wrap: wrap; gap: 6px; margin: .4em 0 1em; }
+.swatch-row span { font: 600 .84rem var(--display); background: var(--steel-2); border: 1px solid var(--line); padding: 3px 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: .9rem; color: var(--ink-muted); margin: 1em 0 0; }
+.legend span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.back { display: inline-block; margin-top: 1.5em; font-size: .85rem; }
+footer { border-top: 1px solid var(--line); margin-top: 60px; padding-top: 18px; color: var(--ink-muted); font-size: .88rem; }
+
+/* ------------------------------------------------------------------ small screens */
+@media (max-width: 980px) {
+  .hero { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .flow a, .flow a:first-child { clip-path: var(--cut); margin: 0; }
+}
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+  .menu-toggle { display: block; }
+  .rail { position: fixed; top: 57px; left: 0; width: min(320px, 88vw); z-index: 25; transform: translateX(-102%); transition: transform .18s ease; box-shadow: 20px 0 40px rgba(0,0,0,.6); }
+  .rail.open { transform: none; }
+  .mark small { display: none; }
+  .search kbd { display: none; }
+}
+@media (max-width: 560px) {
+  body { font-size: 15.5px; }
+  .masthead { padding: 8px 12px; gap: 10px; }
+  .mark span { display: none; }
+  main { padding: 24px 16px 100px; }
+  .map-grid { grid-template-rows: 30px 30px 110px 90px 22px; font-size: .74rem; grid-template-columns: 1fr 1.6fr 1fr; }
+  .map-grid a small, .m-top i { display: none; }
+  .m-ws a { padding: 0 6px; font-size: .7rem; line-height: 1.1; }
+  .m-mon::after { inset: 30px 10px 10px; }
+  .ui { white-space: normal; }
+  .flow { grid-template-columns: 1fr; }
+  td:first-child { white-space: normal; }
+}
+@media print {
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .masthead, .rail, .filters, .map, .flow, .reset { display: none !important; }
+  .shell { display: block; }
+  details { border: 0; } details > div { display: block; }
+  h1, h2, h3, h4, strong, td:first-child, .ui { color: #000; background: none; }
+  a { color: #000; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="rail">Contents</button>
+  <a class="mark" href="#top" aria-label="Digital Forge user guide, back to the top"><b>DF</b><span>Digital Forge user guide<small>Video and Image Editor</small></span></a>
+  <div class="search" role="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search the guide: “clean plate”, “8n+1”, “spritesheet”…" autocomplete="off" aria-label="Search the guide" aria-controls="results">
+    <kbd>/</kbd>
+    <div class="results" id="results" role="listbox" aria-label="Search results"></div>
+  </div>
+</header>
+
+<div class="shell" id="top">
+<nav class="rail" id="rail" aria-label="Contents">
+  <h5>Start here</h5>
+  <a href="#overview">The editor at a glance</a>
+  <a href="#workspaces">The four workspaces</a>
+  <a href="#files">Projects and where files go</a>
+  <a href="#ready">Ready states and memory</a>
+  <a href="#first-edit">Your first edit</a>
+  <h5>Video Editor</h5>
+  <a href="#media-bin">Media bin</a>
+  <a href="#monitor">Program monitor</a>
+  <a href="#timeline">Timeline and tools</a>
+  <a href="#inspector">Inspector</a>
+  <a href="#background-removal">Background removal</a>
+  <a href="#transitions">Transitions</a>
+  <a href="#graphics">Titles and captions</a>
+  <a href="#ai-panel">AI panel</a>
+  <a href="#ltx">Generate with LTX</a>
+  <a href="#h3">Generate with MiniMax-H3</a>
+  <a href="#export">Export</a>
+  <h5>AI clip editor</h5>
+  <a href="#clip-editor">Opening it</a>
+  <a href="#kiwi">Kiwi-Edit</a>
+  <a href="#retake">LTX Retake</a>
+  <a href="#mask-effects">Mask Effects</a>
+  <a href="#text-motion">Text Motion</a>
+  <a href="#clip-vfx">VFX</a>
+  <a href="#character">Insert character</a>
+  <a href="#spritesheet">Spritesheets</a>
+  <a href="#sfx">SFX</a>
+  <h5>Image Studio</h5>
+  <a href="#image-generate">Generate</a>
+  <a href="#image-edit">Edit with Qwen</a>
+  <a href="#image-tools">Cutouts, frames, export</a>
+  <a href="#image-canvas">The canvas</a>
+  <a href="#lora">Train a LoRA</a>
+  <h5>Photo Edit</h5>
+  <a href="#photo-edit">How it works</a>
+  <a href="#photo-layers">Layers and content</a>
+  <a href="#photo-stack">The stack</a>
+  <a href="#photo-masks">Masks</a>
+  <a href="#photo-finish">Geometry and saving</a>
+  <h5>Ref2V</h5>
+  <a href="#ref2v">References to video</a>
+  <h5>Models</h5>
+  <a href="#models">Every model</a>
+  <h5>Recipes</h5>
+  <a href="#full-shot">One shot, start to finish</a>
+  <a href="#recipes">All recipes</a>
+  <h5>Reference</h5>
+  <a href="#shortcuts">Keyboard shortcuts</a>
+  <a href="#numbers">Limits and rules</a>
+  <a href="#catalogs">Catalogues</a>
+  <a href="#trouble">Troubleshooting</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<main id="main">
+
+<!-- =============================================================== START HERE -->
+<section class="chapter" id="overview">
+  <div class="hero">
+    <div>
+      <p class="kicker">User guide</p>
+      <h1>How to use every tool in the editor</h1>
+      <p>Digital Forge is a video editor and an image studio that run entirely on your own PC. The editing itself needs no AI at all. The generation, editing, masking, tracking and sound tools run as local model jobs on one 16 GB NVIDIA card, and everything they make goes back into the same project.</p>
+      <p>This guide follows the app: one chapter per workspace, then the models, step-by-step recipes and reference tables. Hover over or tap a region of the window map to see what it is, and click it to jump there.</p>
+      <div class="legend" aria-label="Symbols used in this guide">
+        <span><b class="ui">Button</b> a control, named as the app names it</span>
+        <span><span class="gpu">GPU job</span> runs a model: takes time and VRAM</span>
+        <span><kbd>Ctrl</kbd>+<kbd>K</kbd> a shortcut</span>
+      </div>
+    </div>
+    <figure class="map" aria-label="Map of the Video Editor window">
+      <div class="map-grid" id="map">
+        <a class="m-top" href="#menus" data-cap="Menus (File, Edit, Clip, Sequence, View), undo and redo, snapping, Save and Export."><b>Top bar</b><i>File · Edit · Clip · Sequence · View</i></a>
+        <div class="m-ws">
+          <a href="#image-generate" data-cap="Image Studio: generate stills with Z-Image, edit them with Qwen Image Edit, cut them out, train LoRAs.">Image Studio</a>
+          <a href="#photo-edit" data-cap="Photo Edit: a layered, non-destructive photo editor with grades, relight, masks, text, shapes and paths.">Photo Edit</a>
+          <a class="video" href="#media-bin" data-cap="Video Editor: the timeline, monitor, inspector and the AI tools. This is the workspace shown here.">Video Editor</a>
+          <a href="#ref2v" data-cap="Ref2V: build a cast of image, video and audio references and let MiniMax-H3 direct a shot with sound.">Ref2V</a>
+        </div>
+        <a class="m-bin" href="#media-bin" data-cap="Media bin: import files, drag them to the timeline, apply effect presets and add titles or captions."><b>Media bin</b><small>Media · Effects · Graphics</small></a>
+        <a class="m-mon" href="#monitor" data-cap="Program monitor: plays the timeline through the same compositor the export uses, and takes your clicks when you pick a subject."><b>Program monitor</b><small>what the export will contain</small></a>
+        <a class="m-insp" href="#inspector" data-cap="Inspector, AI and Export tabs: every setting for the selected clip, the generators, and the master export."><b>Inspector</b><small>Inspector · AI · Export</small></a>
+        <a class="m-tl" href="#timeline" data-cap="Timeline: G1 graphics, V2 overlay, V1 picture, A1–A3 audio, C1 captions. Select, blade and track-select tools; quick and full previews.">
+          <b>Timeline</b>
+          <div class="lanes" aria-hidden="true"><span data-n="G1"></span><span data-n="V2"></span><span class="v1" data-n="V1"></span><span class="a1" data-n="A1"></span><span data-n="A2"></span></div>
+        </a>
+        <a class="m-st" href="#ready" data-cap="Status bar: what the app is doing right now, and the button for Sequence settings."><small style="display:block">Status bar · Sequence settings</small></a>
+      </div>
+      <figcaption class="map-caption" id="map-caption" aria-live="polite">Hover or tap a region.</figcaption>
+    </figure>
+  </div>
+
+  <nav class="flow" aria-label="How work moves between workspaces">
+    <a href="#image-generate"><b>Make frames</b><small>Image Studio: Z-Image, Qwen edits</small></a>
+    <a href="#photo-edit"><b>Finish stills</b><small>Photo Edit: grade, relight, letter</small></a>
+    <a href="#h3"><b>Generate clips</b><small>AI panel: LTX or MiniMax-H3</small></a>
+    <a href="#clip-editor"><b>Edit and add VFX</b><small>AI clip editor, Mask Effects, VFX, SFX</small></a>
+    <a href="#export"><b>Export</b><small>One render, optional upscale</small></a>
+  </nav>
+</section>
+
+<section class="chapter" id="workspaces">
+  <p class="kicker">Start here</p>
+  <h2>The four workspaces</h2>
+  <p>The switcher under the top bar changes the whole window. The project, its media and its undo history are shared, so a picture you make in one workspace is already in the others.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Workspace</th><th>What it is for</th><th>Main models</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#image-generate">Image Studio</a></td><td>Generating and editing stills, removing backgrounds, pulling frames out of video, upscaling, training LoRAs.</td><td>Z-Image Turbo and Base, Qwen Image Edit 2511, BiRefNet</td></tr>
+      <tr><td><a href="#photo-edit">Photo Edit</a></td><td>Finishing a still or a composite: node-based grades, relight, retouch, masks, text, shapes, paths.</td><td>Depth Anything V2, LaMa, SAM 2 (all optional)</td></tr>
+      <tr><td><a href="#media-bin">Video Editor</a></td><td>The editor itself: timeline, transitions, titles, captions, audio, export, and every video AI tool.</td><td>LTX 2.3, MiniMax-H3, Kiwi-Edit, SAM 2, Whisper, MOSS, Wan Alpha, Wan Animate</td></tr>
+      <tr><td><a href="#ref2v">Ref2V</a></td><td>Directing a shot from a cast of reference images, clips and sounds, with dialogue and a take history.</td><td>MiniMax-H3 Ref2VA</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout tip"><b>The editor works without any AI installed</b><p>Import, cut, trim, transitions, titles, captions from subtitle files, audio mixing and export all run on FFmpeg and the built-in compositor. Install the AI features you want later by running <code>Install-Digital-Forge.bat</code> again.</p></div>
+</section>
+
+<section class="chapter" id="files">
+  <p class="kicker">Start here</p>
+  <h2>Projects and where files go</h2>
+  <p>A project is one <code>.aivproj</code> file. Use <span class="ui">File</span> → <span class="ui">Save</span> (<kbd>Ctrl</kbd>+<kbd>S</kbd>), <span class="ui">Save as…</span> and <span class="ui">Open project…</span> (<kbd>Ctrl</kbd>+<kbd>O</kbd>). The file stores the timeline, every clip setting, Photo Edit documents, mask and VFX layers, the Ref2V cast and its take ledger. It stores <em>references</em> to media, not the media itself, so keep your source files where they are.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Folder</th><th>What lands there</th></tr></thead>
+    <tbody>
+      <tr><td><code>projects\&lt;id&gt;\media\</code></td><td>Stills made in Image Studio and Photo Edit, rendered VFX, generated sound effects.</td></tr>
+      <tr><td><code>elements\</code></td><td>Wan Alpha elements, imported PNG sequences and inserted characters, each in its own folder.</td></tr>
+      <tr><td><code>exports\spritesheets\</code></td><td>Spritesheet atlases with their Godot <code>.tres</code> and JSON files.</td></tr>
+      <tr><td><code>cache\</code></td><td>Thumbnails, waveforms, mattes, depth. Safe to delete; it is rebuilt when needed.</td></tr>
+      <tr><td><code>.aiv\</code></td><td>Logs: <code>launcher.log</code>, <code>worker.log</code> (every model job), <code>install-*.log</code>.</td></tr>
+      <tr><td>Wherever you choose</td><td>Generated video (LTX, H3, clip edits, SAM 2 mattes) and exports ask for a save location first.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Nothing is uploaded. Every model runs on your machine, and generated files carry their recipe (prompt, seed, model, settings) in the project so you can see how something was made.</p>
+</section>
+
+<section class="chapter" id="ready">
+  <p class="kicker">Start here</p>
+  <h2>Ready states and memory</h2>
+  <p>Every AI feature checks its own model and runtime and says what is missing instead of failing later. You will see this in three places:</p>
+  <ul>
+    <li><strong>Pills on a panel</strong>: <span class="ok">READY</span> or MISSING in Image Studio, <em>Pack ready</em>, <em>Pack missing</em>, <em>Dependencies missing</em> in the clip editor. Each one names the fix.</li>
+    <li><strong>The runtime line</strong> at the bottom of the AI panel: Python, LTX, checkpoint, Gemma, Foley LoRA, MOSS SFX, Kiwi-Edit, Whisper, MiniMax-H3, H3 Draft, H3 Turbo and Ref2VA, each ✓ or ×.</li>
+    <li><strong>Disabled buttons</strong>: hover them. The tooltip says what they need (a selected clip, a second image, a model).</li>
+  </ul>
+  <h3 id="guard">The resource guard</h3>
+  <p>Only one GPU model job runs at a time. Before a big job starts, the app checks free Windows commit memory and VRAM against what that job is known to need. If something else is holding memory (a local LLM, a game, a browser with many tabs), a dialog shows <strong>Commit</strong> and <strong>VRAM</strong> needed and available, lists the processes holding them, and offers <span class="ui">Cancel</span>, <span class="ui">Release this app's worker</span> (stops a resident LTX worker this app started, nothing else) and <span class="ui">Continue anyway</span>.</p>
+  <div class="callout careful"><b>Continue anyway can crash rather than fail cleanly</b><p>When Windows runs out of commit memory the model worker usually dies with <code>0xC0000005</code> instead of a readable out-of-memory message. Close the other program first when you can.</p></div>
+</section>
+
+<section class="chapter" id="first-edit">
+  <p class="kicker">Start here</p>
+  <h2>Your first edit, in ten minutes</h2>
+  <ol class="steps">
+    <li>Start the app with <code>Launch-AIV-Studio.vbs</code>. It opens on an empty project with a 1920 × 1080, 24 fps sequence.</li>
+    <li>In the <a href="#media-bin">Media bin</a>, click <span class="ui">Import media</span> and pick a few clips, stills or audio files.</li>
+    <li>Drag a clip onto <strong>V1 · Primary</strong>, or double-click it to append it to the end.</li>
+    <li>Press <kbd>Space</kbd> to play. Drag the ruler to scrub; you hear the audio as you drag.</li>
+    <li>Park the playhead and press <kbd>S</kbd> to split the selected clip, or use the blade tool (<kbd>B</kbd>).</li>
+    <li>Select a clip and open the <a href="#transitions">Transitions</a> section of the Inspector. Pick <em>Cross Dissolve</em> as its <span class="ui">Transition in</span>.</li>
+    <li>In the Media bin's <span class="ui">Graphics</span> tab, add a <em>Lower third</em> and type your text in the Inspector.</li>
+    <li>Click <span class="ui">Quick preview</span> above the timeline to render six seconds around the playhead with the real mix.</li>
+    <li>Open the <span class="ui">Export</span> tab, keep MP4 with NVENC, and click <span class="ui">Choose file and render</span>.</li>
+    <li>Save the project with <kbd>Ctrl</kbd>+<kbd>S</kbd>.</li>
+  </ol>
+</section>
+
+<!-- =============================================================== VIDEO EDITOR -->
+<section class="chapter" id="media-bin">
+  <p class="kicker">Video Editor</p>
+  <h2>Media bin</h2>
+  <p>The left panel has three tabs and a search box that filters whichever tab is open.</p>
+  <h3>Media</h3>
+  <p><span class="ui">Import media</span> accepts MP4, MOV, MKV, WebM, AVI, M4V, MP3, WAV, FLAC, M4A, AAC, PNG, JPG and WebP. Each file is probed with FFprobe, so the tile shows its size, frame rate, length and a real thumbnail. Tiles with an <strong>AI</strong> badge were generated in this project.</p>
+  <ul>
+    <li><strong>Drag</strong> a tile onto a lane. Picture goes on video lanes, sound on audio lanes; other lanes refuse the drop.</li>
+    <li><strong>Double-click</strong> or <span class="ui">+ Timeline</span> appends it to the end of V1, or of A1 for a sound file.</li>
+    <li><strong>Right-click</strong> for <span class="ui">Preview</span>, <span class="ui">Rename…</span>, <span class="ui">Add to end of timeline</span> and <span class="ui">Remove from project</span>. Removing takes it out of the project, not off your disk.</li>
+    <li>Select a tile while nothing on the timeline is selected, and the monitor previews that source on its own.</li>
+  </ul>
+  <h3>Effects</h3>
+  <p>Twelve looks you can apply to the selected V1 clip with one click. They set the same sliders as the Inspector's <a href="#inspector">Effects</a> section, so you can fine-tune them afterwards. See the <a href="#cat-presets">full list</a>.</p>
+  <h3>Graphics</h3>
+  <p>Title templates (<em>Centered title</em>, <em>Lower third</em>, <em>News banner</em>, <em>Corner bug</em>) land on <strong>G1 · Graphics</strong> and <em>Caption</em> lands on <strong>C1 · Captions</strong>, five seconds long, at the playhead. <span class="ui">Import SRT / WebVTT</span> turns a subtitle file into caption clips. See <a href="#graphics">Titles and captions</a>.</p>
+</section>
+
+<section class="chapter" id="monitor">
+  <p class="kicker">Video Editor</p>
+  <h2>Program monitor</h2>
+  <p>The monitor draws every frame with the <strong>compositor</strong>, the same renderer the export uses: fitting and cropping, transitions, overlays, titles, clip effects, background removal and mask VFX layers. What you see is what the file will contain. The header shows which engine drew the frame and how long it took.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Control</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ui">Compositor</span> / <span class="ui">Legacy monitor</span></td><td>Switches to the older preview. Keep the compositor unless a clip will not decode; the legacy monitor does not show background removal.</td></tr>
+      <tr><td><span class="ui">VFX: live</span> / <span class="ui">rendered files</span></td><td>Mask VFX layers are rendered live by default. Rendered files shows the files older layers were baked to.</td></tr>
+      <tr><td>Transport</td><td>Timecode, previous edit, play, next edit, total length and <span class="ui">Reset</span> (back to the start).</td></tr>
+      <tr><td>Clicking the picture</td><td>When a tool is <em>picking</em> (SAM 2 tracking, background removal), a click adds a point on the subject. <kbd>Shift</kbd>+click adds an exclude point.</td></tr>
+    </tbody>
+  </table></div>
+  <p>While playing, the monitor renders at a lower size and skips a frame rather than let the sound drift. Paused, it draws the frame at full monitor resolution.</p>
+</section>
+
+<section class="chapter" id="timeline">
+  <p class="kicker">Video Editor</p>
+  <h2>Timeline and tools</h2>
+  <p>A new project has seven tracks, top to bottom: <strong>G1 · Graphics</strong> (titles), <strong>V2 · Overlay</strong> (pictures and cutouts over the picture), <strong>V1 · Primary</strong> (the picture), <strong>A1 · Clip Audio</strong>, <strong>A2 · SFX</strong>, <strong>A3 · Music</strong> and <strong>C1 · Captions</strong>. Time is stored as exact fractions, so frame positions never drift.</p>
+  <h3>Tools</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tool</th><th>Key</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Selection</td><td><kbd>V</kbd></td><td>Click to select, drag to move (also between lanes), drag an edge to trim.</td></tr>
+      <tr><td>Blade</td><td><kbd>B</kbd></td><td>Click a clip to cut it where you click.</td></tr>
+      <tr><td>Track select</td><td><kbd>A</kbd></td><td>Click a lane to select everything from that point to the end of the track, then drag them together. <span class="ui">N selected ✕</span> clears it.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Each track header has show/hide (eye), <span class="ui">M</span> (mute) and lock. The zoom slider is at the right of the toolbar. <kbd>N</kbd> toggles snapping to edits and the playhead.</p>
+  <h3>Previews</h3>
+  <ul>
+    <li><span class="ui">Quick preview</span> renders six seconds around the playhead as a 960 × 540, 30 fps proxy with the real timeline mix. Use it to check a transition or the sound.</li>
+    <li><span class="ui">Full preview</span> renders the same window with your master export settings, upscale included.</li>
+    <li>Both open in a dialog with <span class="ui">Render again at playhead</span>.</li>
+  </ul>
+  <h3>Right-click menus</h3>
+  <p><strong>On a clip:</strong> <span class="ui">Play from clip</span>, <span class="ui">Open AI clip editor…</span>, <span class="ui">Save trimmed clip to project media…</span> (writes just the trimmed range as a new MP4 or WAV, handy as a <a href="#ref2v">Ref2V</a> reference), <span class="ui">Split at playhead</span>, <span class="ui">Duplicate</span>, <span class="ui">Disable clip</span>, <span class="ui">Clear transitions</span>, <span class="ui">Ripple delete</span> and <span class="ui">Delete</span>.</p>
+  <p><strong>On an empty lane:</strong> <span class="ui">Move playhead here</span>, <span class="ui">Select from here on this track</span>, <span class="ui">Place selected media here</span>.</p>
+  <p>Clips show a filmstrip and waveform. Gold ramps on a clip's edges are its transitions; a <strong>VFX</strong> badge means it carries mask VFX layers.</p>
+</section>
+
+<section class="chapter" id="inspector">
+  <p class="kicker">Video Editor</p>
+  <h2>Inspector</h2>
+  <p>Select a clip and the Inspector tab shows its settings. Everything previews live and renders in the export. Title and caption clips show their <a href="#graphics">text controls</a> instead.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Section</th><th>Controls</th></tr></thead>
+    <tbody>
+      <tr><td>Transform</td><td>Position X/Y in sequence pixels (half the width and height is centred), Scale 10–300%, Rotation, Opacity. <span class="ui">Clip</span> → <span class="ui">Reset transform</span> puts it back.</td></tr>
+      <tr><td>Aspect and crop</td><td><span class="ui">Fit</span>: <em>Fit</em> (whole picture, may add bars), <em>Fill</em> (crops the edges), <em>Stretch</em>, <em>None</em>. With Fit, fill the bars with a colour or a blurred copy of the picture (<span class="ui">Blur amount</span>). <span class="ui">Source zoom</span> 100–400% crops into the source, with <span class="ui">Pan X</span>/<span class="ui">Pan Y</span>. <span class="ui">Reset to sequence default</span> drops the override.</td></tr>
+      <tr><td>Background removal</td><td>Cut the subject out of this clip. See <a href="#background-removal">Background removal</a>.</td></tr>
+      <tr><td>Transitions</td><td>In and out transitions with duration. See <a href="#transitions">Transitions</a>.</td></tr>
+      <tr><td>Effects</td><td>Brightness, Contrast, Saturation, Gamma, Hue, Blur, Sharpen, Vignette, Noise (grain, useful for matching generated footage to real footage), <span class="ui">Reset effects</span>.</td></tr>
+      <tr><td>Speed</td><td><span class="ui">Playback speed</span> 25–400% with presets, or type a <span class="ui">Timeline duration</span> and the speed follows. Audio is time-stretched without changing pitch.</td></tr>
+      <tr><td>AI tools</td><td><span class="ui">Open the AI clip editor</span>; <span class="ui">Find frozen and silent pauses</span> (frozen picture and silence overlapping for 0.35 s or more; <span class="ui">Remove + ripple</span> on each one); <span class="ui">Auto-caption this clip</span> <span class="gpu">GPU job</span> (Whisper large-v3-turbo writes timed captions to C1).</td></tr>
+      <tr><td>Audio</td><td>Volume −60 to +12 dB. <span class="ui">Denoise audio</span>: <em>Light</em> 6 dB, <em>Medium</em> 12 dB, <em>Strong</em> 24 dB plus a patch pass, optional <span class="ui">Normalise to −16 LUFS</span>. It writes a new file beside the source and points the clip at it; the original is never touched and undo restores it.</td></tr>
+      <tr><td>Compositing</td><td>Blend mode (Normal, Screen, Multiply, Overlay, Darken, Lighten, Difference, Hard light) and <span class="ui">Enabled in preview and export</span>.</td></tr>
+    </tbody>
+  </table></div>
+  <p id="menus">The <strong>top bar menus</strong> repeat the common commands: <span class="ui">File</span> (new, open, save, import, export), <span class="ui">Edit</span> (undo, redo, duplicate, split, delete), <span class="ui">Clip</span> (AI clip editor, enable/disable, reset transform, clear transitions), <span class="ui">Sequence</span> (render timeline, sequence settings) and <span class="ui">View</span> (snapping, show the Export or AI panel).</p>
+  <h3 id="sequence">Sequence settings</h3>
+  <p>From the <span class="ui">Sequence</span> menu or the status bar. Set the name, width and height, frame rate (23.976 to 60 fps), audio sample rate, and the <strong>default fit for clips</strong> used by every clip that has no override. Aspect presets include 16:9 HD and 4K, 9:16 vertical, 1:1, 4:3, 3:2 at 1536 × 1024 (LTX's native shape) and 2.39:1 scope.</p>
+</section>
+
+<section class="chapter" id="background-removal">
+  <p class="kicker">Video Editor</p>
+  <h2>Background removal on the timeline</h2>
+  <p>Any video or image clip can have its background removed. The cut becomes the clip's transparency in the monitor and the export, so <strong>whatever is under the clip shows through</strong>: put the subject clip on V2 and a new background on V1. On V1 alone the cutout sits over black.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Method</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td>Auto (BiRefNet) <span class="gpu">GPU job</span></td><td>One obvious subject. Finds the foreground in every frame with soft, detailed edges. No clicks needed. Up to 5,400 frames.</td></tr>
+      <tr><td>Pick subject (SAM 2) <span class="gpu">GPU job</span></td><td>Choosing exactly which subject. Click it in the monitor; SAM 2 follows it through the clip with hard edges. Up to 900 frames.</td></tr>
+      <tr><td>Pick + soft edges (both) <span class="gpu">GPU job</span></td><td>The best cutout. SAM 2 chooses the subject and BiRefNet gives it soft hair and motion-blur edges. The slowest.</td></tr>
+    </tbody>
+  </table></div>
+  <ol class="steps">
+    <li>Select the clip and choose a <span class="ui">Method</span> in the Inspector's <strong>Background removal</strong> section.</li>
+    <li>For the SAM 2 methods, click <span class="ui">Pick subject in monitor</span>, then click the subject. <kbd>Shift</kbd>+click marks something to remove. You can move the playhead and add points on other frames where SAM 2 needs help.</li>
+    <li>Optionally turn on <span class="ui">Track assist (CoTracker3)</span>: it follows your points and re-prompts SAM 2 every 12 frames, which keeps it on a subject that turns or is briefly covered.</li>
+    <li>Click <span class="ui">Remove background</span>. The matte is cached, so remaking with the same settings is instant.</li>
+    <li>Adjust live, without remaking: <span class="ui">Edge feather</span>, <span class="ui">Grow / shrink</span> (negative eats into a halo), <span class="ui">Invert (remove the subject)</span> and <span class="ui">Show cutout</span>.</li>
+  </ol>
+  <p>The section's badge reads <strong>REMAKE</strong> when you have changed the method, points, track assist or edge smoothing since the matte was made, or trimmed the clip past it.</p>
+</section>
+
+<section class="chapter" id="transitions">
+  <p class="kicker">Video Editor</p>
+  <h2>Transitions</h2>
+  <p>Every clip has two transition slots: <span class="ui">Transition in</span> and <span class="ui">Transition out</span>. Each has a search box over all 58 transitions, a grouped list and a duration.</p>
+  <ul>
+    <li>At a cut, the two sides <strong>fuse</strong>: the incoming clip's choice sets the look, and the longer of the two durations wins, so nothing is cut short.</li>
+    <li>On the first clip, the in transition fades up from black (white or grey for dip transitions); on the last clip, the out transition fades down.</li>
+    <li>The <strong>Head cut</strong> and <strong>Tail cut</strong> lines show what will actually happen at each end.</li>
+    <li><span class="ui">Apply to all cuts</span> copies this transition to every cut on V1. <span class="ui">Clear</span> removes both.</li>
+    <li>Audio crossfades with the picture.</li>
+  </ul>
+  <p>A transition needs frames beyond the visible edit. If a clip has no spare frames, the edit closes up by the transition's length, and the timeline draws it where it will really land. The <a href="#cat-transitions">transition catalogue</a> lists all 58 with descriptions.</p>
+</section>
+
+<section class="chapter" id="graphics">
+  <p class="kicker">Video Editor</p>
+  <h2>Titles and captions</h2>
+  <p>Titles and captions are editable clips, never burned into the picture. Add them from the Media bin's <span class="ui">Graphics</span> tab, from <a href="#text-motion">Text Motion</a> in the clip editor, from a subtitle file, or with <span class="ui">Auto-caption this clip</span>.</p>
+  <p>Select one and the Inspector shows: <span class="ui">Template</span>, <span class="ui">Text</span>, <span class="ui">Subtitle</span>, <span class="ui">Duration</span>, <span class="ui">Font size</span>, <span class="ui">Backdrop</span> (Transparent, Filled box, Outline frame, Underline), <span class="ui">Font</span> (Display, Clean sans, Cinema serif, Tech mono), <span class="ui">Weight</span>, <span class="ui">Text outline</span>, <span class="ui">Shadow</span>, <span class="ui">Backdrop opacity</span>, the four motion controls (<span class="ui">Animate in</span>, <span class="ui">Animate out</span>, <span class="ui">While visible</span>, <span class="ui">Easing</span>) with <span class="ui">Animation time</span>, the colours, and opacity.</p>
+  <p>All the motion names are in the <a href="#cat-text">text motion catalogue</a>.</p>
+</section>
+
+<section class="chapter" id="ai-panel">
+  <p class="kicker">Video Editor</p>
+  <h2>The AI panel</h2>
+  <p>The Inspector's <span class="ui">AI</span> tab holds three sections. It stays loaded while you look at other tabs, so a running generation keeps its settings and timer.</p>
+  <ul>
+    <li><strong>Clip editor</strong>: a shortcut to the <a href="#clip-editor">AI clip editor</a>.</li>
+    <li><strong>SAM 2 subject tracking</strong>: make a standalone matte video (below).</li>
+    <li><strong>Clip generation</strong>: <a href="#ltx">LTX 2.3</a> or <a href="#h3">MiniMax-H3</a>, chosen with <span class="ui">Model</span>. The fields change with the model, because the two have different frame and size rules.</li>
+  </ul>
+  <h3 id="sam2-tracking">SAM 2 subject tracking</h3>
+  <p>Makes a new video from a subject in the selected V1 clip, over its trimmed range. <span class="gpu">GPU job</span></p>
+  <ol class="steps">
+    <li>Select the clip and click <span class="ui">Add points from monitor</span>.</li>
+    <li>Click the subject in the monitor; <kbd>Shift</kbd>+click to exclude a region.</li>
+    <li>Choose <span class="ui">Output</span>: <em>Matte</em> (black-and-white mask for keying), <em>Cutout</em> (subject on black) or <em>Removed</em> (subject blacked out, for clean-plate work). Add a little <span class="ui">Feather</span> to hide jagged edges.</li>
+    <li>Click <span class="ui">Track subject + add to bin</span>, and choose where to save. The result appears in the Media bin.</li>
+  </ol>
+  <div class="callout tip"><b>Which masking tool?</b><p>To cut a subject out <em>in place</em> on the timeline, use <a href="#background-removal">Background removal</a>. For a separate matte file to use elsewhere, use this panel. For effects on the subject, use <a href="#mask-effects">Mask Effects</a>. For a mask inside a composite, use <a href="#photo-masks">Masks</a> in VFX or Photo Edit.</p></div>
+</section>
+
+<section class="chapter" id="ltx">
+  <p class="kicker">Video Editor · AI panel</p>
+  <h2>Generate with LTX 2.3</h2>
+  <p>LTX 2.3 distilled makes video with synchronized audio in one pass sized for a 16 GB card. Results are 24 fps and are placed on the timeline for you. <span class="gpu">GPU job</span></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Mode</th><th>What you give it</th><th>What you get</th></tr></thead>
+    <tbody>
+      <tr><td>First + last frame</td><td>Two different stills from the bin, and a prompt.</td><td>A clip that starts on one and ends on the other. <span class="ui">Swap first and last</span> reverses them.</td></tr>
+      <tr><td>Image → video</td><td>One still and a prompt.</td><td>A clip that starts on the image and moves forward.</td></tr>
+      <tr><td>Text → video</td><td>A prompt.</td><td>A clip from the text alone.</td></tr>
+      <tr><td>Clip extend</td><td>The selected V1 clip and a prompt.</td><td>A continuation from its last visible frame, ripple-inserted right after it.</td></tr>
+      <tr><td>Clip to clip</td><td>A V1 clip with another clip after it.</td><td>The motion between them, from the first clip's last frame to the next clip's first, inserted at the cut.</td></tr>
+      <tr><td>Video → audio</td><td>A source clip and a description of the sound.</td><td>A new soundtrack on the untouched picture (foley). Needs the gated Foley V2A LoRA.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Settings</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Control</th><th>Meaning and advice</th></tr></thead>
+    <tbody>
+      <tr><td>Prompt</td><td>Describe motion, camera, action and audio. For foley, describe ambience, foley, music and dialogue tone.</td></tr>
+      <tr><td>Avoid</td><td>A negative prompt. It only works when a CFG scale is above 1.0; with both at 1.0 the run refuses to start and says so.</td></tr>
+      <tr><td>Resolution</td><td>768 × 512 landscape, 512 × 768 portrait or 512 × 512 square. Extend and bridge use the source clip's shape.</td></tr>
+      <tr><td>Frames</td><td>Must be 8n+1 (9, 17 … 193); the control snaps. 121 frames is five seconds.</td></tr>
+      <tr><td>Seed</td><td>Same seed and settings, same result. Change it for variations.</td></tr>
+      <tr><td>Guide strength</td><td>How tightly the result follows your conditioning image. Lower invents more.</td></tr>
+      <tr><td>CFG (video), CFG (audio)</td><td>1.0 is unguided, which is what the distilled model expects. Audio starts to follow the prompt at about 1.5. Anything above 1.0 roughly doubles time and VRAM.</td></tr>
+      <tr><td>Reference hold, LoRA strength</td><td>Foley only. Raise reference hold if the sound ignores the action; lower LoRA strength if it sounds over-processed.</td></tr>
+      <tr><td>Offload</td><td><em>CPU streaming</em> is fastest and recommended (about 19 GiB of RAM pinned). <em>Disk + cache</em> pins about 6 GiB. Plain <em>Disk</em> uses least RAM but has crashed on the reference machine.</td></tr>
+      <tr><td>Attention</td><td>Native SDPA, or Sage Attention 2 (faster, very slightly different; install with <code>scripts\install-ltx-attention.ps1</code>). The first run compiles a kernel, so judge speed on the second.</td></tr>
+    </tbody>
+  </table></div>
+  <p>If a run runs out of VRAM, it retries automatically: first with disk weight streaming (slower, same result), then without guidance (changes the result, and says so).</p>
+</section>
+
+<section class="chapter" id="h3">
+  <p class="kicker">Video Editor · AI panel</p>
+  <h2>Generate with MiniMax-H3</h2>
+  <p>MiniMax-H3 generates picture and sound in one denoising loop, so the soundtrack is locked to the action. The result lands as two linked clips: video on V1 and its 32 kHz stereo audio on A1, so you can mute or replace the sound without touching the picture. H3 is guidance-distilled: there is no CFG and no negative prompt. <span class="gpu">GPU job</span></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Mode</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Text → video + audio</td><td>From a prompt alone. Pick the <span class="ui">Aspect</span>.</td></tr>
+      <tr><td>Image → video + audio</td><td>Starts from a still. The still sets the canvas shape.</td></tr>
+      <tr><td>First + last frame → video + audio</td><td>Between two stills, the classic way to control where a shot goes. Needs two images in the bin.</td></tr>
+      <tr><td>Generate up to a final frame</td><td>Only the last frame is fixed; H3 invents how to get there.</td></tr>
+      <tr><td>Clip → video + audio</td><td>Continues the selected V1 clip from its last visible frame and ripple-inserts the pair after it.</td></tr>
+      <tr><td>Clip → clip + audio</td><td>Bridges the selected clip to the next one. <span class="ui">Bridge length</span> can fill the gap between them or use your duration; if the bridge is longer than the gap, later clips move along by the overflow only.</td></tr>
+      <tr><td>References → video + audio (Ref2VA)</td><td>From a tray of image, video and audio references. The full version of this is the <a href="#ref2v">Ref2V workspace</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Settings</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Control</th><th>Meaning and advice</th></tr></thead>
+    <tbody>
+      <tr><td>Sampling</td><td><em>LightX2V Turbo v1.0</em>, 8 evaluations: recommended. <em>Base H3</em>, 50 evaluations: the quality reference, much slower. <em>LightX2V Draft v0.1</em>, 4 evaluations at 544p: quick drafts.</td></tr>
+      <tr><td>Attention</td><td>Sage Attention 2 by default, native as the fallback. Pick native to rule attention out if a result looks wrong.</td></tr>
+      <tr><td>Aspect, Canvas</td><td>21:9 to 9:16. <em>544 short edge</em> is the 16 GB profile; <em>768</em> is the size H3 was trained at and costs about 2.3× the time per step. With a keyframe, its shape sets the canvas.</td></tr>
+      <tr><td>Frames</td><td>17n+5 frames at 24 fps, from 124 to 345 (5.2 to 14.4 seconds). The control snaps.</td></tr>
+      <tr><td>Steps</td><td>Base only (4–60). Turbo and Draft have their evaluation count fixed.</td></tr>
+      <tr><td>Memory profile</td><td><em>Balanced</em> (recommended), <em>Performance</em>, <em>Minimal</em>. The conditioner, denoiser and decoder run as three separate processes one after another, so peak memory is the largest stage, not the sum.</td></tr>
+    </tbody>
+  </table></div>
+  <p>In <strong>Ref2VA</strong> mode the panel shows a reference tray (up to 9 images, 3 videos, 3 audio, 12 in all; a video's own soundtrack counts as audio), guidance-role checkboxes per reference, <span class="ui">Reference quality</span>, a <span class="ui">Shot brief</span> and <span class="ui">Build local structured prompt</span>. Video and audio references must each be 2–15 seconds, and no more than 15 seconds per kind in total.</p>
+</section>
+
+<section class="chapter" id="export">
+  <p class="kicker">Video Editor</p>
+  <h2>Export</h2>
+  <p>Open the Inspector's <span class="ui">Export</span> tab with the <span class="ui">Export</span> button in the top bar or <span class="ui">File</span> → <span class="ui">Export…</span>. Settings are saved with the sequence.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Section</th><th>Controls</th></tr></thead>
+    <tbody>
+      <tr><td>Master export</td><td><span class="ui">Format</span> MP4, MOV or MKV (changing it repairs codec choices the container cannot hold). <span class="ui">Video codec</span>: NVENC on the GPU (fast) or libx264/libx265 on the CPU (slower, slightly better per bit). <span class="ui">Rate control</span>: constant quality (recommended) or a target bitrate. <span class="ui">Quality</span> 12–40: 19–23 looks transparent, 28 and up starts to show. <span class="ui">Encoder speed</span>: slower presets buy quality at the same size.</td></tr>
+      <tr><td>Frame</td><td><span class="ui">Resolution</span>: follow the sequence, 2160p, 1440p, 1080p, 720p, vertical 1080 × 1920, square, or custom. <span class="ui">Frame rate</span>: sequence, 24, 25, 30, 50 or 60.</td></tr>
+      <tr><td>Upscale</td><td>A second pass over the finished master. <span class="ui">Upscaler</span>: <em>NVIDIA RTX</em> (2×, 3×, 4×; quality levels, the <em>clean source</em> ones skip artefact removal), <em>Real-ESRGAN</em> (pick weights and a <span class="ui">Tile</span> size; tiles keep 4K frames inside 16 GB) or <em>Resample only</em> (Lanczos, Bicubic, Bilinear, Nearest). The <strong>Resolved chain</strong> shows exactly what will run and any cap applied by the encoder.</td></tr>
+      <tr><td>Audio</td><td>Codec, bitrate, 44.1/48/96 kHz, mono or stereo.</td></tr>
+      <tr><td>Render</td><td><span class="ui">Choose file and render</span>. Every frame is drawn by the compositor, all audio tracks are mixed, and the file is encoded once. <span class="ui">Legacy export (ffmpeg filter graphs)</span> is the old multi-pass path, kept as a fallback.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout careful"><b>Blend modes in the legacy export</b><p>Blend modes render correctly with the compositor export. The legacy export renders every clip as Normal.</p></div>
+</section>
+<!-- =============================================================== AI CLIP EDITOR -->
+<section class="chapter" id="clip-editor">
+  <p class="kicker">AI clip editor</p>
+  <h2>Opening the AI clip editor</h2>
+  <p>The clip editor works on <strong>one V1 clip</strong> over a range of it. Select the clip and press <kbd>Ctrl</kbd>+<kbd>K</kbd>, or use <span class="ui">Clip</span> → <span class="ui">Open AI clip editor…</span>, the clip's right-click menu, or the button in the Inspector. The range starts at the playhead and runs about three seconds.</p>
+  <p>Two tabs sit at the top: <span class="ui">Visual Edit</span> and <span class="ui">SFX</span>. Visual Edit has five modes:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Mode</th><th>What it does</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#kiwi">Kiwi-Edit</a></td><td>Rewrites the range from a plain-language instruction, optionally guided by a reference image.</td><td>A new clip to replace the range or insert after.</td></tr>
+      <tr><td><a href="#retake">LTX Retake</a></td><td>Regenerates the range from a prompt: picture, sound or both.</td><td>A new clip to replace the range or insert after.</td></tr>
+      <tr><td><a href="#mask-effects">Mask Effects</a></td><td>Tracks a subject with SAM 2 and applies a look to it: glow, aura, fireball, hologram, focus effects.</td><td>A live VFX layer on the clip, or a baked copy.</td></tr>
+      <tr><td><a href="#text-motion">Text Motion</a></td><td>Designs animated text against the picture.</td><td>An editable title on G1.</td></tr>
+      <tr><td><a href="#clip-vfx">VFX</a></td><td>A full layered compositor over the range: elements, tracking, depth, emitters, character insertion, spritesheets.</td><td>A rendered clip that replaces the range or goes after it.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Shared controls</h3>
+  <ul>
+    <li><strong>Scrub strip</strong> and <span class="ui">Set in</span> / <span class="ui">Set out</span> / <span class="ui">Whole clip</span> set the range; <span class="ui">Range in</span> and <span class="ui">Range out</span> take exact seconds.</li>
+    <li>When a job finishes, review the result in the preview, then choose <span class="ui">Replace selected range</span> or <span class="ui">Insert after clip</span>. Nothing changes on the timeline until you do.</li>
+    <li><strong>What the worker reported</strong> shows the model's own log: windows, memory profile, peak VRAM. Everything is also appended to <code>.aiv\worker.log</code>.</li>
+    <li>The clip editor is modal: timeline shortcuts are off while it is open, so <kbd>Del</kbd> cannot delete the clip you are editing. <kbd>Esc</kbd> closes it.</li>
+  </ul>
+</section>
+
+<section class="chapter" id="kiwi">
+  <p class="kicker">AI clip editor · Visual Edit</p>
+  <h2>Kiwi-Edit</h2>
+  <p>Kiwi-Edit 5B changes an existing range from an instruction: <em>“Remove the microphone”</em>, <em>“Make it snow”</em>, <em>“Change the jacket to red”</em>. <span class="gpu">GPU job</span></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Control</th><th>Meaning and advice</th></tr></thead>
+    <tbody>
+      <tr><td>Mode</td><td><em>Instruction only</em>, or <em>Reference image guided</em> with <span class="ui">Choose reference image…</span> (for example, the jacket you want).</td></tr>
+      <tr><td>Edit length</td><td><em>Stable</em>: one 81-frame pass, the supported quality mode. <em>Long</em>: overlapping 81-frame passes, each conditioned on the one before, joined at the least disruptive seam. The readout shows the number of passes and the output length.</td></tr>
+      <tr><td>Instruction strength</td><td>How hard the instruction is pushed (1–10). At 1.0 it barely steers and the result looks like the input; 4 is a good start. Above 1 costs a second pass per step.</td></tr>
+      <tr><td>Avoid</td><td>What the edited range should not contain.</td></tr>
+      <tr><td>Steps</td><td>4–60, default 24. More is cleaner with diminishing returns past about 30.</td></tr>
+      <tr><td>Placement</td><td><em>Staged</em> fits 16 GB: the text encoder runs first, is unloaded, then the video model takes its place. <em>Block streaming</em> also pages model blocks from RAM, for smaller cards.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Click <span class="ui">Edit the selected range</span>, then replace or insert. Up to three frames can be lost to the model's frame rules.</p>
+</section>
+
+<section class="chapter" id="retake">
+  <p class="kicker">AI clip editor · Visual Edit</p>
+  <h2>LTX Retake</h2>
+  <p>Regenerates just the selected range, keeping the frames around it, from a prompt. <span class="gpu">GPU job</span></p>
+  <ul>
+    <li><span class="ui">Regenerate</span>: <em>Video + audio</em>, <em>Video only</em> (keeps the original sound) or <em>Audio only</em> (keeps the original picture). The kept half is rebuilt straight from your source, not from the model.</li>
+    <li><span class="ui">Guidance</span>: <em>Fast</em> (one pass per step, the documented mode) or <em>Experimental guided-distilled</em> (four passes per step, adds <span class="ui">Prompt strength</span>; diagnostic). <span class="ui">Avoid</span> only works in the guided mode.</li>
+    <li><span class="ui">Enhance prompt</span> uses LTX's built-in Gemma prompt enhancer: good for short prompts, leave it off when your prompt is already precise.</li>
+    <li>Write prompts as: subject and appearance, the action in order, camera, lighting and style, then the sound and its timing.</li>
+    <li>Keep the range at least <strong>2 seconds</strong>. Shorter ranges run, but the untouched frames around them dominate and the original tends to come back.</li>
+  </ul>
+  <p>The panel shows the exact frame range it will regenerate, and refuses sources outside the 16 GB profile before starting. After the run, <span class="ui">Context + seams</span> shows one second either side so you can judge the joins; <span class="ui">Generated range</span> shows only the new part.</p>
+</section>
+
+<section class="chapter" id="mask-effects">
+  <p class="kicker">AI clip editor · Visual Edit</p>
+  <h2>Mask Effects</h2>
+  <p>Mask Effects tracks one subject with SAM 2 and applies a look to it that follows it through the range: a glow behind a dancer, lightning around a hand, the background blurred, a face pixelated. The look is saved as a <strong>VFX layer</strong> on the clip and rendered live by the monitor and the export, so you can change it later.</p>
+  <ol class="steps">
+    <li>Set the range (up to 900 frames). Choose <span class="ui">+ Include</span> and click the subject in the preview; <span class="ui">− Exclude</span> for anything that should not be part of it.</li>
+    <li>Click <span class="ui">1 · Track subject</span> <span class="gpu">GPU job</span>. The matte is tracked once and cached; every look afterwards reuses it.</li>
+    <li>Pick a <strong>complete recipe</strong> (Anime Power Up, Dark Magic Aura, Energy Shield, Comic Surge, Cinematic Explosion Plate) or an <strong>effect algorithm</strong>, and adjust. <span class="ui">Live look</span> and <span class="ui">Play range</span> preview it.</li>
+    <li>Click <span class="ui">2 · Save VFX layer (renders live)</span>, then <span class="ui">Done · keep VFX layer</span>. The clip gets a VFX badge.</li>
+    <li>Optional: <span class="ui">Insert baked copy</span> or <span class="ui">Replace range (bake)</span> render the look to a video file.</li>
+  </ol>
+  <h3>The controls</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Group</th><th>Controls</th></tr></thead>
+    <tbody>
+      <tr><td>Layer builder</td><td><span class="ui">Behind subject</span> (plate, then effect, then a clean cutout of the subject on top), <span class="ui">Inside subject</span>, <span class="ui">In front</span>. <span class="ui">Effect matte</span>: subject silhouette, flame silhouette, energy rings, radial burst, or an imported VFX clip. <span class="ui">Place VFX</span> then drag in the preview to position it. Blend mode, opacity, scale, position, rotation, pulse and pulse rate, loop.</td></tr>
+      <tr><td>Imported clip</td><td><span class="ui">Choose effect clip</span> (MP4, MOV, WebM, MKV, AVI, GIF). Keep its colours or use it as a gradient matte; extract its matte from alpha, luminance or a chroma key.</td></tr>
+      <tr><td>Look</td><td>Strength, Feather, Expand edge, effect colour and secondary colour, and an <strong>animated gradient</strong> whose shift runs with the animation speed.</td></tr>
+      <tr><td>Matte quality + motion</td><td>Temporal smoothing, noise cleanup, animation speed, particles/copies, and the clean holdout's feather and expand.</td></tr>
+      <tr><td>Passes + shot integration</td><td>Rear pass, subject lighting, foreground pass, motion blur, light wrap, colour spill, grain match, displacement.</td></tr>
+      <tr><td>Effect transitions</td><td>Animate the effect in and out: soft fade, edges to centre, centre to edges, top to bottom, bottom to top, explosive burst, power gathering. Origin at the tracked subject or the effect anchor.</td></tr>
+      <tr><td>Transform keyframes</td><td>Scrub, change position, scale, rotation, opacity or strength, then <span class="ui">Capture at N%</span>.</td></tr>
+      <tr><td>Audio reactive</td><td>Drive the strength from overall loudness, bass (below about 180 Hz) or hits and transients, with reaction amount and release smoothing.</td></tr>
+      <tr><td>Invert mask</td><td>Affect everything outside the subject instead (for example, pixelate the background).</td></tr>
+    </tbody>
+  </table></div>
+  <p>The effect list is in the <a href="#cat-mask">Mask Effects catalogue</a>. If the clip already has layers, they are listed under <strong>Timeline VFX layers</strong> with enable and remove.</p>
+</section>
+
+<section class="chapter" id="text-motion">
+  <p class="kicker">AI clip editor · Visual Edit</p>
+  <h2>Text Motion</h2>
+  <p>Designs an animated title over the selected range and places it on G1 as an editable graphics clip. Nothing is burned into the video.</p>
+  <ul>
+    <li><strong>Style presets</strong>: Clean, Boxed, Frame, Cinema, Neon, Social Pop. Each is a starting point you can change.</li>
+    <li><span class="ui">Layout</span>: centred title, lower third, bottom banner, corner label, caption. <span class="ui">Text</span> (up to 120 characters) and <span class="ui">Subtitle</span>.</li>
+    <li>Motion: <span class="ui">Animate in</span>, <span class="ui">Animate out</span>, <span class="ui">While visible</span>, <span class="ui">Easing</span> and <span class="ui">Animation time</span>. The <a href="#cat-text">text motion catalogue</a> lists them all.</li>
+    <li>Typography, backdrop (transparent, box, outline frame, underline, with opacity, padding and frame width) and five colours.</li>
+    <li><span class="ui">Replay</span> plays it against the picture; <span class="ui">Add to G1</span> places it.</li>
+  </ul>
+</section>
+
+<section class="chapter" id="clip-vfx">
+  <p class="kicker">AI clip editor · Visual Edit</p>
+  <h2>VFX: the clip compositor</h2>
+  <p>The <span class="ui">VFX</span> mode opens a full layered compositor over the clip. The clip is the <strong>plate</strong>, the bottom layer. You add elements, pictures, text and shapes over it, track points to attach them, and then <span class="ui">Render VFX</span> to put the result back on the timeline. It is the same engine as <a href="#photo-edit">Photo Edit</a>, with time added, so every layer has the same <a href="#photo-stack">stack</a> and <a href="#photo-masks">masks</a>.</p>
+  <h3>Getting around</h3>
+  <ul>
+    <li>The <strong>time bar</strong> above the picture has first frame, play, a scrubber, the timecode and the composition length. <span class="ui">Proxy</span> scrubs from lighter proxies; rendering always uses full frames.</li>
+    <li>The right column holds <strong>Render</strong>, <strong>Spritesheet</strong>, <strong>Pictures</strong> (add any still as a layer) and <strong>Other video</strong> (add stock footage as a layer at the current frame).</li>
+    <li><span class="ui">Whole clip</span> or the range button sets how much of the clip the plate covers.</li>
+  </ul>
+  <h3 id="elements">Elements and Wan Alpha</h3>
+  <p>Elements are transparent animated effects: smoke, fire, sparks, energy. Open the <strong>Elements</strong> card from <span class="ui">Elements</span> on the Canvas card.</p>
+  <ul>
+    <li>Click an element to add it as a layer at the current frame; the wand icon adds it as an <strong>emitter</strong> that spawns copies over time.</li>
+    <li><span class="ui">Import PNG folder…</span> brings in any RGBA PNG sequence.</li>
+    <li><strong>Generate with Wan Alpha</strong> <span class="gpu">GPU job</span>: pick a preset (smoke wisp, fireball, magic sparks, flames, explosion, dust burst, energy aura, flame aura, energy rings, radial burst, held fireball orb), edit the prompt and name, choose 33 frames (about 1.5 min) or 81 frames (about 4 min), and <span class="ui">Generate element</span>. Output is 832 × 480 at 16 fps. Close a local LLM first.</li>
+    <li>A media layer's <strong>Timing</strong> card sets its source fps, start frame, in and out points, loop and loop crossfade. <span class="ui">Save loop to element</span> makes it the element's default.</li>
+    <li>Wan Alpha elements are mostly translucent. An <strong>Alpha curve</strong> step thickens a fireball's core; <strong>Unmultiply</strong> turns footage shot on black into a glow with transparency.</li>
+  </ul>
+  <h3 id="tracks">Tracks: attach things to motion</h3>
+  <p>The <strong>Tracks</strong> card appears once the plate is video.</p>
+  <ol class="steps">
+    <li>Choose the <span class="ui">Engine</span>: <em>Built-in (Lucas-Kanade)</em>, no model needed; or <em>CoTracker3</em> <span class="gpu">GPU job</span>, which is far more robust (installed by the Motion feature; non-commercial licence).</li>
+    <li>Select the layer to attach (an element, a picture, text), then click <span class="ui">Track a point + attach the selected layer</span> and click the point on the picture, such as a hand.</li>
+    <li>The layer now follows. <span class="ui">Lag</span> delays it by up to 24 frames; <span class="ui">Anchor at frame</span> re-measures from the current frame; <span class="ui">Detach</span> stops it.</li>
+    <li>Or track the centre of a SAM 2 matte from <span class="ui">From a SAM 2 matte</span>, which holds on a whole subject rather than a point.</li>
+  </ol>
+  <p><strong>Trail</strong> (in the stack): the layer's base follows a track and its top follows where the track was up to 48 frames earlier, so smoke bends behind a moving hand. <strong>Emitters</strong>: spawn at a track or a fixed point, with rate, lifetime, velocity, spread, scale and opacity from birth to death, spin and seed; every frame is repeatable.</p>
+  <h3 id="depth">Depth occlusion</h3>
+  <p><span class="ui">Compute depth</span> <span class="gpu">GPU job</span> measures the plate with Video Depth Anything once (cached). Then <span class="ui">Occlude by depth</span> hides the selected layer wherever the plate is nearer the camera, so an effect can pass behind a foreground object. Adjust the depth <em>plane</em> and <em>softness</em> in its mask entry.</p>
+  <h3 id="vfx-render">Render</h3>
+  <p><span class="ui">Render VFX</span> composes every frame at full size and encodes an H.264 MP4 with the clip's own sound for the same span. Then choose <span class="ui">Replace a–b s on the timeline</span> (the clip keeps its head and tail) or <span class="ui">Insert after the clip</span>. The original footage is never changed and the render is saved in Project Media.</p>
+</section>
+
+<section class="chapter" id="character">
+  <p class="kicker">AI clip editor · VFX</p>
+  <h2>Insert character (Wan Animate 2)</h2>
+  <p>Replace a person in a shot with a character from a picture. Wan Animate 2 animates your character with the actor's exact motion on a plain background; SAM 2 and BiRefNet cut it out; it is placed over the actor, aligned frame for frame. Then a clean plate paints the actor out around it.</p>
+  <ol class="steps">
+    <li>Open the clip in <span class="ui">VFX</span> and set the plate to the part you want (up to 900 frames).</li>
+    <li>In <strong>Masks</strong>, click <span class="ui">New mask</span>, use <span class="ui">Click-select</span> to put three or so points on the actor, then <span class="ui">Run</span> <span class="gpu">GPU job</span>. SAM 2 tracks the actor through the range.</li>
+    <li>Optional: <strong>Tracks</strong> → <span class="ui">Compute depth</span>.</li>
+    <li>In <strong>Insert character</strong>: give it a <span class="ui">Name</span>, pick the <span class="ui">Character picture</span> (a full-body shot on a plain background works best), describe it, keep <span class="ui">Driving clip</span> on <em>This plate</em>, and set <span class="ui">Actor matte (SAM 2)</span> to the mask you made.</li>
+    <li>Choose <span class="ui">Steps</span> (10 is the default), <span class="ui">Seed</span> and <span class="ui">Size</span> (384² fast, 512² the 16 GB preset, 640² slow). Tick <span class="ui">Add a Relight step to match the plate</span> and <span class="ui">Paint the actor out around the character</span>.</li>
+    <li>Click <span class="ui">Animate and insert</span> <span class="gpu">GPU job</span>. On the reference machine, 75 frames at 512² took about 10 minutes.</li>
+    <li>Scrub to check, then <span class="ui">Render VFX</span> and <span class="ui">Replace</span>.</li>
+  </ol>
+  <div class="callout careful"><b>What the clean plate needs</b><ul>
+    <li>A <strong>locked-off camera</strong>. It rebuilds the background from frames around the shot and refuses a moving camera with “not locked off”.</li>
+    <li>It is one still for the whole range, which is right for a few seconds. Over a long range, lighting drift may show.</li>
+    <li>The gaps it cannot see are filled with LaMa when the Photo Edit models are installed.</li>
+  </ul></div>
+  <p>Character layers are kept in the element library, so you can place them again from the card. <span class="ui">Paint the actor out</span> runs the clean plate on its own for a character you already placed. The character's scale follows the actor's height and its feet land on the actor's feet line.</p>
+</section>
+
+<section class="chapter" id="spritesheet">
+  <p class="kicker">AI clip editor · VFX</p>
+  <h2>Export a spritesheet</h2>
+  <p>The <strong>Spritesheet</strong> section under Render turns the composition, or one layer alone, into a game-ready sprite atlas.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Control</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Source</td><td><em>Whole composition</em>, or one layer alone (for example, the inserted character) on transparency.</td></tr>
+      <tr><td>From, To, Every</td><td>The frame range and step. <em>Every 2</em> halves the frame count and the playback speed is set to match.</td></tr>
+      <tr><td>Scale</td><td>25%, 50%, 75% or 100%.</td></tr>
+      <tr><td>Trim</td><td>Crops to the frames' combined visible area, one box for all frames so the pivot does not jump.</td></tr>
+      <tr><td>Loop in Godot</td><td>Sets the animation to loop.</td></tr>
+    </tbody>
+  </table></div>
+  <p><span class="ui">Export spritesheet</span> writes three files to <code>exports\spritesheets\&lt;name&gt;\</code>: an atlas PNG (exact straight alpha), a Godot 4 <code>SpriteFrames</code> <code>.tres</code>, and a JSON sidecar with every frame rectangle for other engines. In Godot, drop the folder into your project and assign the <code>.tres</code> to an <em>AnimatedSprite2D</em>.</p>
+</section>
+
+<section class="chapter" id="sfx">
+  <p class="kicker">AI clip editor</p>
+  <h2>SFX: designed sound and picture foley</h2>
+  <p>The <span class="ui">SFX</span> tab makes a sound for the selected range, lets you audition it against the picture, and places it on the SFX track. <span class="gpu">GPU job</span></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Engine</th><th>Use it for</th><th>Its controls</th></tr></thead>
+    <tbody>
+      <tr><td>Designed SFX · MOSS</td><td>A specific sound from a description: <em>“A heavy metal door slamming in a concrete bunker”</em>. It does not look at the picture.</td><td><span class="ui">Duration</span>: match the range (up to 30 s) or custom. <span class="ui">Quality</span>: <em>Draft</em> 30 steps or <em>Final</em> 100 steps.</td></tr>
+      <tr><td>Picture Foley · LTX</td><td>Sound that follows the action on screen: footsteps landing on the steps, cloth, impacts.</td><td><span class="ui">Foley amount</span>: minimal, normal or detailed.</td></tr>
+    </tbody>
+  </table></div>
+  <ol class="steps">
+    <li>Set the range around the moment. <span class="ui">Loop range</span> keeps it playing.</li>
+    <li>Write the prompt and, if needed, <span class="ui">Exclude</span> (<em>voices, music, background ambience</em>). Seed 0 picks a random seed.</li>
+    <li>Generate. Each result becomes a <strong>take</strong>; <span class="ui">Try another</span> adds more takes to compare.</li>
+    <li>Line it up: drag <span class="ui">Cue offset</span> or nudge it one frame at a time with <span class="ui">← 1 frame</span> / <span class="ui">1 frame →</span>, watching the Original and Generated waveforms.</li>
+    <li>Set gain (−30 to +6 dB), pan, fades, and trim the start or end. Toggle <span class="ui">Original audio</span> and <span class="ui">Generated sound</span> to compare; <span class="ui">Keep tail</span> lets the sound ring past the range.</li>
+    <li><span class="ui">Add to SFX track</span> places it at exactly that point on <strong>A2 · SFX</strong>.</li>
+  </ol>
+  <p>To replace a whole clip's soundtrack with foley instead, use LTX <a href="#ltx">Video → audio</a> in the AI panel.</p>
+</section>
+
+<!-- =============================================================== IMAGE STUDIO -->
+<section class="chapter" id="image-generate">
+  <p class="kicker">Image Studio</p>
+  <h2>Generate stills</h2>
+  <p>Image Studio makes the frames you will animate. The left column has three tabs: <span class="ui">Generate</span>, <span class="ui">Edit</span> and <span class="ui">Train LoRA</span>. The middle is a layered canvas and the right lists layers and Project Media. <span class="gpu">GPU job</span></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Mode</th><th>Model</th><th>Character</th></tr></thead>
+    <tbody>
+      <tr><td>Fast</td><td>Z-Image Turbo, 9 steps</td><td>Quick and sharp. No negative prompt and no CFG.</td></tr>
+      <tr><td>Creative</td><td>Z-Image Base, 36 steps, CFG 4</td><td>More variety between seeds, takes a negative prompt, and matches LoRAs trained on Base most strongly.</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>Write the <span class="ui">Frame prompt</span> as subject, environment, composition, lighting and lens.</li>
+    <li>Size presets: 16:9 (1344 × 768), 9:16, 1:1 (1024 × 1024), 3:2 (1536 × 1024); or type a width and height in steps of 16.</li>
+    <li><span class="ui">Candidates</span>: one image, or a <em>4-seed grid</em> to pick from. Seed −1 is random.</li>
+    <li><strong>LoRA</strong>: choose an installed one or <span class="ui">Browse LoRA folder</span>, set <span class="ui">LoRA strength</span> (0–3), and click <span class="ui">Insert trigger</span> if the prompt lacks its trigger word. After generating, it confirms the LoRA was actually active. A LoRA trained on Base lands weaker on Turbo: try 1.5–2.5, or use Creative.</li>
+  </ul>
+  <p>Results go into Project Media and onto the canvas. In the Project Media grid, the wand renames a generated image from its prompt.</p>
+</section>
+
+<section class="chapter" id="image-edit">
+  <p class="kicker">Image Studio</p>
+  <h2>Edit with Qwen Image Edit 2511</h2>
+  <p>Edit mode changes a picture from an instruction and can combine up to three images, for example to put the person from one picture into the scene of another. <span class="gpu">GPU job</span></p>
+  <ol class="steps">
+    <li>Select the image on the canvas. It is <strong>Image 1</strong>.</li>
+    <li>Optionally click the <strong>Image 2</strong> and <strong>Image 3</strong> boxes to add more pictures. Refer to them in the instruction as picture 2 and picture 3.</li>
+    <li>Write the <span class="ui">Edit instruction</span>: say what changes and what stays. <span class="ui">Rewrite</span> <span class="gpu">GPU job</span> has Qwen2.5-VL look at the pictures and rewrite your instruction the way Qwen's own enhancer does; <span class="ui">Undo</span> restores yours. It needs the Z-Image trainer runtime installed.</li>
+    <li>Pick a preset: <em>Lightning</em> (4 steps, the fast default), <em>Balanced</em> (8 steps) or <em>Quality</em> (40 steps with True CFG 4 and a negative prompt).</li>
+    <li><span class="ui">Output size</span>: <em>Default</em> keeps Image 1's shape at about one megapixel, which is what Qwen was trained on. A different shape reframes the picture. Above about 1.6 MP it gets slower and drifts more.</li>
+    <li>Click <span class="ui">Generate edited image</span>. The result is added as a new layer; the original is untouched.</li>
+  </ol>
+  <div class="callout tip"><b>Start and end frames for a video</b><p>Generate one frame, then edit it into the end state (<em>“the same knight, now with the sword raised, same background and lighting”</em>). Two frames that share composition and lighting give H3 and LTX a smooth path between them. See the <a href="#full-shot">full recipe</a>.</p></div>
+</section>
+
+<section class="chapter" id="image-tools">
+  <p class="kicker">Image Studio</p>
+  <h2>Cutouts, video frames and export</h2>
+  <h3>BiRefNet background remover</h3>
+  <p>Select a layer and click <span class="ui">Remove selected background</span> <span class="gpu">GPU job</span>. <span class="ui">Blur</span>, <span class="ui">Dilate</span> and <span class="ui">Erode</span> refine the edge. The layer is swapped for the cutout, and both the cutout and its mask go into Project Media.</p>
+  <h3>Import video frames</h3>
+  <p><span class="ui">Choose video</span> opens a frame-accurate picker: step with the arrows or the slider, <span class="ui">Select current frame</span> for up to 32 frames, then <span class="ui">Add selected to canvas</span>. Frames are extracted as lossless PNGs, ready to edit into keyframes.</p>
+  <h3>Export and upscale</h3>
+  <ul>
+    <li><span class="ui">Upscale first</span>: off, a Real-ESRGAN model (photographic 4× or 2×, lightweight 4×, illustration) or NVIDIA VFX. The <strong>Resolved chain</strong> shows the final size.</li>
+    <li><span class="ui">Format</span>: PNG or TIFF (lossless, keep transparency), WebP (keeps transparency), or JPEG (no transparency; choose a <span class="ui">Matte</span> colour to put behind it).</li>
+    <li><span class="ui">Export selected layer…</span> saves a file where you choose. <span class="ui">Upscale to Project Media only</span> keeps the result inside the project, ready for the timeline.</li>
+  </ul>
+</section>
+
+<section class="chapter" id="image-canvas">
+  <p class="kicker">Image Studio</p>
+  <h2>The canvas</h2>
+  <ul>
+    <li><span class="ui">Move layer</span> drags the selected layer; <span class="ui">Pan canvas</span> moves the view. Zoom 25–500% from the menu or with <kbd>Ctrl</kbd>+wheel. <span class="ui">Reset layer</span> / <span class="ui">Reset view</span>.</li>
+    <li>Arrow keys nudge the selected layer by 1% (<kbd>Shift</kbd> for 5%).</li>
+    <li>The transform bar under the canvas: Scale, Rotate, Opacity, and <strong>Crop edges</strong> (left, top, right, bottom).</li>
+    <li>The Layers list: double-click to rename, lock, show or hide, move up or down, remove.</li>
+    <li>Project Media tiles: <span class="ui">Canvas</span> (add as a layer), <span class="ui">Edit</span> (open in Photo Edit), <span class="ui">+ Timeline</span>.</li>
+  </ul>
+  <h3>Create canvas image</h3>
+  <p><em>Tight alpha</em> trims the result to its visible pixels with optional padding; <em>Framed output</em> keeps the canvas size with a transparent, black or white background. <span class="ui">Create image in Project Media</span> flattens it. <span class="ui">Open this canvas in Photo Edit</span> moves all the layers across, so each can get its own grade, relight, masks and edge treatment.</p>
+</section>
+
+<section class="chapter" id="lora">
+  <p class="kicker">Image Studio</p>
+  <h2>Train a Z-Image LoRA</h2>
+  <p>Teach Z-Image a character, a person, a style, a product or an outfit from your own pictures, then use it in Generate. Captioning and training are separate GPU jobs. <span class="gpu">GPU job</span></p>
+  <ol class="steps">
+    <li><span class="ui">Train for</span>: <em>Turbo</em> (for Fast mode, with a training adapter) or <em>Base</em> (for Creative mode).</li>
+    <li>Give it a <span class="ui">LoRA name</span> and a <span class="ui">Profile</span>: designed character, person identity, visual style, product or object, clothing or concept.</li>
+    <li>Keep the suggested rare <span class="ui">Trigger token</span>; ordinary words and names keep their old meaning and overpower the training. Set the <span class="ui">Class noun</span> (for example <em>man</em>, <em>robot</em>, <em>jacket</em>).</li>
+    <li><span class="ui">Choose images</span>, then <span class="ui">Auto-caption</span> with the Qwen 2511 encoder or Gemma 3 for more detail.</li>
+    <li>Review every caption in <strong>Dataset review</strong>. Fix them, and remove pictures with quality flags. Training will not start until they pass validation.</li>
+    <li>Pick the preset: <span class="ui">Resolution</span> 512 (fastest), 768 (balanced for 16 GB) or 1024 (recommended for identity), and steps, rank, alpha, learning rate, checkpoint interval and how many to keep.</li>
+    <li>Click <span class="ui">Train Z-Image-Turbo LoRA</span> (or <span class="ui">Train Z-Image Base LoRA</span>). <span class="ui">Save &amp; pause</span> frees the GPU; a paused job resumes exactly where it stopped with <span class="ui">Resume to N total steps</span>.</li>
+    <li>Under <strong>Saved checkpoints</strong>, <span class="ui">Test in Image Studio</span> loads a checkpoint in the right mode with its trigger already in the prompt.</li>
+  </ol>
+  <p><span class="ui">Continue from LoRA folder</span> starts a new training phase from an existing adapter's weights, with a fresh optimizer. To continue the same run exactly, pause and resume instead.</p>
+</section>
+
+<!-- =============================================================== PHOTO EDIT -->
+<section class="chapter" id="photo-edit">
+  <p class="kicker">Photo Edit</p>
+  <h2>How Photo Edit works</h2>
+  <p>Photo Edit is a layered, non-destructive photo editor. Open it from the workspace switcher and pick an image on the right, or from <span class="ui">Edit</span> on any Image Studio tile. Every change is a step you can reopen, reorder or switch off, the original file is never changed, and the whole document is saved in the project.</p>
+  <ul>
+    <li>A document has <strong>layers</strong> (pictures, text, shapes, paths, gradients, Matrix rain).</li>
+    <li>Each layer has its own <strong>stack</strong> of steps (grade, relight, retouch…) and its own <strong>masks</strong>.</li>
+    <li>The whole picture has <strong>geometry</strong> (rotate, flip, straighten, crop).</li>
+  </ul>
+  <h3>The tool bar</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tool</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>View</td><td>Look, and move the relight handle.</td></tr>
+      <tr><td>Move</td><td>Drag the selected layer; corner handles resize, the handle above rotates (<kbd>Shift</kbd> snaps).</td></tr>
+      <tr><td>Pen</td><td>Draw a vector path: click for corners, drag for curves, click the first point to close.</td></tr>
+      <tr><td>Crop</td><td>Drag the crop rectangle.</td></tr>
+      <tr><td>Paint / Erase</td><td>Paint the selected mask.</td></tr>
+      <tr><td>Clone / Heal</td><td>With a Retouch step: <kbd>Alt</kbd>+click sets the source, then paint.</td></tr>
+      <tr><td>Liquify</td><td>With a Liquify step: drag to push pixels.</td></tr>
+      <tr><td>Click-select</td><td>Pick a subject with SAM 2 into the selected mask.</td></tr>
+      <tr><td>Compare</td><td>Hold to see the original.</td></tr>
+      <tr><td>Mask, Fit / 100%</td><td>Tint the masked area; fit the picture or show it at 100%.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The badge at the right says <strong>EDITED</strong> or <strong>UNCHANGED</strong>; the engine readout next to it switches between the GPU and CPU compositor.</p>
+</section>
+
+<section class="chapter" id="photo-layers">
+  <p class="kicker">Photo Edit</p>
+  <h2>Layers and what they can hold</h2>
+  <p>The <strong>Canvas</strong> card lists the layers and adds new ones: <span class="ui">Add text</span>, <span class="ui">Add gradient</span>, <span class="ui">Matrix rain</span>, and shapes in three groups. Pictures come from Project Media with <span class="ui">Layer</span>.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Layer type</th><th>What you can do</th></tr></thead>
+    <tbody>
+      <tr><td>Text</td><td>Any installed font, size, weight, italic, alignment, letter spacing, line height, column width, fill, outline, shadow and drop shadow, a panel behind it with border and padding. <span class="ui">Convert to outlines</span> turns it into a path.</td></tr>
+      <tr><td>Shapes</td><td><strong>Balloons</strong> with lettering already inside (speech, thought, shout, scream, broadcast, dripping, wobble, whisper, caption) with a draggable tail; <strong>Shapes</strong> (box, rounded, ellipse, polygon, star, burst, heart, bolt, splat, arrow, banner); <strong>Behind the action</strong> (impact, sunburst, speed lines).</td></tr>
+      <tr><td>Gradient</td><td>Linear, reflected, radial, angular or diamond; stops, direction, spread, repeat with mirror, shift, dither and easing. Drag its handles on the picture.</td></tr>
+      <tr><td>Path</td><td>Fill rule, stroke width, corners, ends, dashes, stroke behind fill. Combine with the path below (unite, subtract, intersect, exclude, compound), outline the stroke, clip the layer above, use it as a vector mask on the layer below, make a blend between two paths, or bend it with an <strong>envelope</strong>.</td></tr>
+      <tr><td>Matrix rain</td><td>A procedural glyph rain that loops exactly: cell size, density, trail, loop length, column speeds, glyph changes, colours. Animates in clip VFX.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Repeat</strong> (any layer except a gradient) makes copies in a grid or around a ring, with rows, columns, brick shift, radius, sweep, rotation, and scale or fade per copy.</p>
+  <h3>The Layer card</h3>
+  <ul>
+    <li><span class="ui">Blend mode</span> (twelve modes) and opacity.</li>
+    <li><strong>Mask and matte</strong>: choose the layer mask, <span class="ui">Clip to below</span>, or a <span class="ui">Track matte</span> from another layer's alpha or luma (inverted or not), as in After Effects.</li>
+    <li>Placement (X, Y, scale, rotation, centre, 100%, lock) and trim edges.</li>
+    <li><strong>Making it belong</strong>: <span class="ui">Match colour to what is behind</span> measures the layer against the picture under it and adds a grade step with the exposure, white balance and contrast that close the gap. <span class="ui">Defringe</span> repaints a contaminated edge, <span class="ui">Light wrap</span> spills the background around the edge, and <span class="ui">Contact shadow</span> draws a shadow from the layer's own shape.</li>
+  </ul>
+</section>
+
+<section class="chapter" id="photo-stack">
+  <p class="kicker">Photo Edit</p>
+  <h2>The stack: steps on a layer</h2>
+  <p>Add steps from the <strong>Stack</strong> card. They run top to bottom; each can be limited to a mask with the mask picker at the top of its settings.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Step</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Grade</td><td>Tone (exposure, contrast, highlights, shadows), levels (black point, white point, gamma), colour (white-balance picker, temperature, tint, saturation, vibrance), colour bands (hue, saturation and luminance per band), vignette, noise reduction (luminance and colour separately, keep detail), sharpen, blur, a look (Aurora 64, Halation, Bleach, Teal Night, Mono 400, Faded Print, Sun Bleach) with amount, grain, and a tone curve. A histogram sits alongside.</td></tr>
+      <tr><td>Relight <span class="gpu">GPU job</span></td><td>Adds a key light using the picture's depth. <span class="ui">Measure depth</span> once, drag the gold handle to place the light, then intensity, distance, softness, colour (tungsten, warm, daylight, practical), ambient and rim.</td></tr>
+      <tr><td>Retouch</td><td>Clone stamp and spot heal, without a model: brush size and hardness, <span class="ui">Undo stroke</span>.</td></tr>
+      <tr><td>Liquify</td><td>Push, bloat, pinch and twirl with a brush.</td></tr>
+      <tr><td>Envelope</td><td>Bends the layer with a 4 × 4 mesh you drag on the picture.</td></tr>
+      <tr><td>Gradient map</td><td>Recolours by brightness: duotones and split toning.</td></tr>
+      <tr><td>Unmultiply</td><td>For footage shot on black: black becomes transparent and a glow keeps its falloff.</td></tr>
+      <tr><td>Luma key</td><td>Keeps what lies between two brightness levels, with softness and invert.</td></tr>
+      <tr><td>Alpha curve</td><td>Thickens or thins transparency (gain and gamma).</td></tr>
+      <tr><td>Trail</td><td>Clip VFX only: bends the layer behind a track's motion.</td></tr>
+      <tr><td>Remove <span class="gpu">GPU job</span></td><td>Paint over what should go, then <span class="ui">Fill the masked area</span> with LaMa inpainting.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Relight needs Depth Anything V2 and Remove needs LaMa. Both come with the <strong>photo</strong> feature in the installer (<code>Download-Photo-Models.bat</code>). Everything else works without them.</p>
+</section>
+
+<section class="chapter" id="photo-masks">
+  <p class="kicker">Photo Edit</p>
+  <h2>Masks</h2>
+  <p>A mask decides where a step or a layer applies. Each mask is a <strong>stack of entries</strong> combined in order with <em>Add</em>, <em>Subtract</em>, <em>Intersect</em> or <em>Difference</em>, each with its own opacity, expand or choke, and feather.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Entry</th><th>Where it comes from</th></tr></thead>
+    <tbody>
+      <tr><td>Brush</td><td>Painted by hand (brush size, hardness, feather).</td></tr>
+      <tr><td>Linear, Radial</td><td>Gradient shapes you drag on the picture.</td></tr>
+      <tr><td>Colour</td><td>A colour you pick, with tolerance and softness.</td></tr>
+      <tr><td>SAM 2 selection <span class="gpu">GPU job</span></td><td><span class="ui">Click-select</span> points on the subject, then <span class="ui">Run</span>. In clip VFX this tracks the subject through the whole range.</td></tr>
+      <tr><td>From a layer</td><td>Another layer's alpha or luma.</td></tr>
+      <tr><td>Depth occlusion</td><td>Hide where a clip is nearer, with plane and softness.</td></tr>
+      <tr><td>Tracked matte</td><td>A SAM 2 track saved by Mask Effects.</td></tr>
+      <tr><td>Imported PNG</td><td>A greyscale or alpha PNG.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="chapter" id="photo-finish">
+  <p class="kicker">Photo Edit</p>
+  <h2>Geometry and saving</h2>
+  <p><strong>Geometry</strong>: <span class="ui">Rotate</span> 90°, <span class="ui">Flip H</span>, <span class="ui">Flip V</span>, <span class="ui">Straighten</span> ±45°, scale, crop (free, 1:1, 4:5, 3:2, 16:9, 9:16, or exact edges) and the background behind the layers. Straightening grows the frame; crop takes it back.</p>
+  <p><strong>Save and export</strong>: PNG, JPEG (with a matte colour), WebP or TIFF. <span class="ui">Save to Project Media</span>, <span class="ui">Save and add to Image Studio canvas</span>, or <span class="ui">Export to a file…</span>. Each composites every layer at full resolution into a new picture; the document stays editable.</p>
+</section>
+
+<!-- =============================================================== REF2V -->
+<section class="chapter" id="ref2v">
+  <p class="kicker">Ref2V</p>
+  <h2>Ref2V: direct a shot from references</h2>
+  <p>Ref2V turns a cast of references (pictures of your characters, a clip for the motion, a voice, a room tone) and a written shot description into a video with sound, using MiniMax-H3 Ref2VA. Every run is kept as a take you can restore. <span class="gpu">GPU job</span></p>
+  <h3>1. Build the cast</h3>
+  <ul>
+    <li>Add media from the project: up to 9 images, 3 videos, 3 audio clips, 12 in all. Video and audio must each be 2–15 seconds, and no more than 15 seconds per kind in total. Use <span class="ui">Save trimmed clip to project media…</span> on the timeline to cut a reference to length.</li>
+    <li>Each reference shows the label the model will see: <code>&lt;Picture 1&gt;</code>, <code>&lt;Video 1&gt;</code>, <code>&lt;Audio 1&gt;</code>. Order matters: reordering renumbers them. A video with its sound on takes an audio slot before its video slot.</li>
+    <li>Tick the <strong>roles</strong> that apply: subject or identity, visual style, motion or action, camera or composition, frame anchor (the shot starts from this picture), continue clip, voice or timbre, ambience or sound, music.</li>
+    <li>For each role pick a strength: <em>Keep exactly</em>, <em>Adapt</em> or <em>Inspired by</em>.</li>
+    <li>A video's soundtrack can be switched off, or <span class="ui">split</span> into its own audio reference.</li>
+    <li><span class="ui">+ define subject</span> names something visible in a picture (<code>&lt;Subject 1&gt;</code>) so the description can refer to it. <span class="ui">apply onto</span> transfers a reference's quality onto another subject instead of showing it.</li>
+  </ul>
+  <h3>2. Set the output</h3>
+  <ul>
+    <li><span class="ui">Duration</span>: 124 to 345 frames (about 5 to 14 seconds). <span class="ui">Aspect</span> and <span class="ui">Resolution Tier</span>: native 768p, 544p for 16 GB, 480p, 416p, or custom. The tokens-per-frame badge turns from safe to heavy as the canvas grows.</li>
+    <li><span class="ui">Sampling</span>: <em>Base</em> with 20, 30 or 50 steps (quality), or <em>LightX2V Turbo v0.1</em> at 4 steps (fast drafts). <span class="ui">Motion Shift</span> 12 is the published value.</li>
+    <li><span class="ui">Reference Image Detail</span>: <em>Match canvas</em> is the default; 1024 or 2048 px hold identity better and cost time on every step. <span class="ui">Reference Video Detail</span>: 384 px is safe on 16 GB.</li>
+    <li><span class="ui">VAE Tile Size</span> 256 is the released setting. <span class="ui">Memory</span>: balanced. <span class="ui">Attention</span>: native SDPA is the safe choice; the Sage options are faster.</li>
+  </ul>
+  <h3>3. Write the shot</h3>
+  <p>The <span class="ui">Guided</span> tab builds the prompt from fields: <strong>Style</strong>, <strong>Summary</strong>, one or more <strong>shots</strong> (shot 1 has no timestamp, later shots take <code>MM:SS.mmm</code>), <strong>dialogue lines</strong> (language, which subject speaks, separate, overlap or interrupt, delivery, and the exact words), <strong>Soundscape</strong> and <strong>Music</strong> (blank means none). Aim for 350–500 words. The assembled prompt is shown below the fields; <span class="ui">Raw prompt</span> lets you edit it directly.</p>
+  <h3>4. Generate and keep takes</h3>
+  <p><strong>Production preflight</strong> lists anything that blocks the run and anything worth checking. <span class="ui">Generate Ref2V</span> makes a take. Each take keeps its exact setup and seed: <span class="ui">Restore take setup</span> brings it back, <span class="ui">Send to timeline</span> places it on V1 and A1, and <span class="ui">Remove take</span> deletes it. The cast, shots and takes are all saved in the project.</p>
+</section>
+<!-- =============================================================== MODELS -->
+<section class="chapter" id="models">
+  <p class="kicker">Models</p>
+  <h2>Every model, what it does, and where it appears</h2>
+  <p>Each card says which installer feature brings the model in (run <code>Install-Digital-Forge.bat</code> and pick it), roughly how much disk it takes, and where it shows up in the app. Every model has its own licence, and several restrict commercial use: read them before you sell work made with them.</p>
+  <div class="filters" id="model-filters" role="group" aria-label="Filter models by job"></div>
+  <p class="count" id="model-count"></p>
+  <div class="cards" id="model-cards"></div>
+</section>
+
+<!-- =============================================================== RECIPES -->
+<section class="chapter" id="full-shot">
+  <p class="kicker">Recipes</p>
+  <h2>One shot, start to finish</h2>
+  <p class="lede">This recipe touches almost every part of the app: two keyframes from Image Studio, a MiniMax-H3 shot between them, a character swapped in with Wan Animate, a spritesheet of that character, an effect tracked to a hand, an extension, new sound, a sound effect on the beat, a tracked glow on the subject, a title and a transition, then the export.</p>
+  <div class="callout careful"><b>Before you start</b><ul>
+    <li>Install these features: <strong>image-studio</strong>, <strong>h3</strong>, <strong>ltx</strong> (for picture foley), <strong>moss</strong>, <strong>motion</strong>, <strong>wan-alpha</strong>, <strong>wan-animate</strong> and <strong>photo</strong>.</li>
+    <li>Close anything that holds a lot of memory, such as a local LLM or a game. The <a href="#guard">resource guard</a> will tell you if something is in the way.</li>
+    <li>The clean plate in phase 3 needs a camera that does not move. Ask H3 for one in the prompt: <em>“locked-off static camera”</em>.</li>
+  </ul></div>
+  <div id="full-shot-steps"></div>
+</section>
+
+<section class="chapter" id="recipes">
+  <p class="kicker">Recipes</p>
+  <h2>All recipes</h2>
+  <p>Short paths through the app for common jobs. Tick the steps as you go; your progress is remembered on this computer.</p>
+  <div class="filters" id="recipe-filters" role="group" aria-label="Filter recipes">
+    <input type="search" id="recipe-q" placeholder="I want to…" aria-label="Filter recipes by what you want to do">
+  </div>
+  <p class="count" id="recipe-count"></p>
+  <div id="recipe-list"></div>
+</section>
+
+<!-- =============================================================== REFERENCE -->
+<section class="chapter" id="shortcuts">
+  <p class="kicker">Reference</p>
+  <h2>Keyboard shortcuts</h2>
+  <p>Video Editor shortcuts work when the cursor is not in a text field. Inside the AI clip editor only undo, redo and <kbd>Esc</kbd> reach the timeline.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Keys</th><th>Action</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Space</kbd></td><td>Play or pause</td><td>Video Editor</td></tr>
+      <tr><td><kbd>S</kbd></td><td>Split the selected clip at the playhead</td><td>Video Editor</td></tr>
+      <tr><td><kbd>V</kbd> / <kbd>B</kbd> / <kbd>A</kbd></td><td>Selection, blade, track select</td><td>Video Editor</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Toggle snapping</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Del</kbd></td><td>Delete the selected clip</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>Del</kbd></td><td>Ripple delete (close the gap)</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Open the AI clip editor for the selected clip</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Duplicate the selected clip</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td><td>Everywhere except Image Studio</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Redo</td><td>Everywhere except Image Studio</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd> / <kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Save / open project</td><td>Everywhere</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close the clip editor or sequence settings</td><td>Video Editor</td></tr>
+      <tr><td><kbd>Shift</kbd>+click</td><td>Add an exclude point when picking a subject</td><td>Monitor, pickers</td></tr>
+      <tr><td>Arrow keys (<kbd>Shift</kbd> ×5)</td><td>Nudge the selected layer</td><td>Image Studio canvas</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+wheel</td><td>Zoom the canvas</td><td>Image Studio</td></tr>
+      <tr><td><kbd>Alt</kbd>+click</td><td>Set the clone source</td><td>Photo Edit, Retouch</td></tr>
+      <tr><td><kbd>Shift</kbd> while dragging</td><td>Snap rotation, gradient angle or balloon tail to 15°</td><td>Photo Edit</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Search this guide</td><td>This guide</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="chapter" id="numbers">
+  <p class="kicker">Reference</p>
+  <h2>Limits and rules worth knowing</h2>
+  <p>Most “why won't it let me” moments come from one of these. The app snaps or refuses values outside them rather than failing halfway through a run.</p>
+  <div class="tablewrap wide"><table class="wide">
+    <thead><tr><th>Thing</th><th>Rule</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td>LTX frames</td><td>8n+1, from 9 to 193, at 24 fps (0.4 to 8 s)</td><td>121 frames = 5 s. Other counts snap to the nearest legal one.</td></tr>
+      <tr><td>LTX size</td><td>768 × 512, 512 × 768 or 512 × 512 in the 16 GB profile</td><td>Extend and bridge take the source clip's shape.</td></tr>
+      <tr><td>LTX Retake</td><td>At least one latent frame (8 source frames); 2 s or more recommended</td><td>Short ranges tend to come back unchanged.</td></tr>
+      <tr><td>MiniMax-H3 frames</td><td>17n+5, from 124 to 345, at 24 fps (5.2 to 14.4 s)</td><td>A bridge snaps to the nearest legal length and may push later clips.</td></tr>
+      <tr><td>MiniMax-H3 canvas</td><td>Multiples of 32; 544 short edge for 16 GB, 768 trained (about 2.3× slower)</td><td>A keyframe's shape sets the canvas.</td></tr>
+      <tr><td>MiniMax-H3 audio</td><td>32 kHz stereo, linked on A1</td><td>Mute or replace it without touching the picture.</td></tr>
+      <tr><td>Ref2VA references</td><td>9 images, 3 videos, 3 audio, 12 total; timed references 2–15 s; 15 s per kind in total</td><td>A video's soundtrack counts as audio.</td></tr>
+      <tr><td>Kiwi-Edit</td><td>81-frame passes; <em>Long</em> overlaps several</td><td>Up to three frames can be lost to the frame rule.</td></tr>
+      <tr><td>SAM 2</td><td>900 frames per run</td><td>Split longer clips, or track a shorter range.</td></tr>
+      <tr><td>BiRefNet</td><td>5,400 frames per run</td><td>Auto background removal covers long clips.</td></tr>
+      <tr><td>Mask Effects range</td><td>900 frames</td><td>Same SAM 2 limit.</td></tr>
+      <tr><td>Wan Alpha elements</td><td>832 × 480, 16 fps, 33 or 81 frames</td><td>Loop them with a crossfade for longer shots.</td></tr>
+      <tr><td>Wan Animate 2</td><td>384², 512² or 640²; up to 900 frames</td><td>512² is the 16 GB preset; about 11 s per step on the reference machine.</td></tr>
+      <tr><td>MOSS sound effects</td><td>Up to 30 s; Draft 30 steps, Final 100 steps</td><td>Draft to find the sound, Final for the keeper.</td></tr>
+      <tr><td>Qwen Image Edit output</td><td>Default about 1 MP in Image 1's shape; manual 256–2048 in steps of 16</td><td>Above about 1.6 MP it is slower and drifts more.</td></tr>
+      <tr><td>Video frames into Image Studio</td><td>Up to 32 at a time</td><td>Extracted as lossless PNG.</td></tr>
+      <tr><td>Clip speed</td><td>25–400%</td><td>Audio keeps its pitch.</td></tr>
+      <tr><td>Pause finder</td><td>Frozen picture and silence overlapping for 0.35 s or more</td><td>A short handle is kept on each side of a cut.</td></tr>
+      <tr><td>GPU jobs</td><td>One at a time</td><td>The resource guard checks memory before each one.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="chapter" id="catalogs">
+  <p class="kicker">Reference</p>
+  <h2>Catalogues</h2>
+  <p>Everything with a list of choices. Type in a box to filter.</p>
+  <h3 id="cat-transitions">Transitions</h3>
+  <div class="filters"><input type="search" data-filter="cat-transitions-table" placeholder="Filter the 58 transitions" aria-label="Filter transitions"></div>
+  <div class="tablewrap"><table class="catalog" id="cat-transitions-table"><thead><tr><th>Name</th><th>Group</th><th>What it does</th></tr></thead><tbody></tbody></table></div>
+  <h3 id="cat-mask">Mask Effects</h3>
+  <div class="filters"><input type="search" data-filter="cat-mask-table" placeholder="Filter effects" aria-label="Filter mask effects"></div>
+  <div class="tablewrap"><table class="catalog" id="cat-mask-table"><thead><tr><th>Effect</th><th>Group</th><th>Look</th></tr></thead><tbody></tbody></table></div>
+  <h3 id="cat-text">Text motion</h3>
+  <div id="cat-text-lists"></div>
+  <h3 id="cat-presets">Clip effect presets</h3>
+  <div class="tablewrap"><table class="catalog" id="cat-presets-table"><thead><tr><th>Preset</th><th>Group</th><th>Look</th></tr></thead><tbody></tbody></table></div>
+  <h3 id="cat-elements">Wan Alpha element presets</h3>
+  <div class="swatch-row" id="cat-elements-list"></div>
+  <h3 id="cat-blend">Blend modes, looks and shapes</h3>
+  <div id="cat-blend-lists"></div>
+</section>
+
+<section class="chapter" id="trouble">
+  <p class="kicker">Reference</p>
+  <h2>Troubleshooting</h2>
+  <p>When a model job fails, the panel keeps the worker's full message in a red box, and every job is logged to <code>.aiv\worker.log</code>. The last lines usually name the problem. Paste them when you ask for help.</p>
+  <div id="trouble-list"></div>
+</section>
+
+<section class="chapter" id="glossary">
+  <p class="kicker">Reference</p>
+  <h2>Glossary</h2>
+  <div class="tablewrap"><table class="catalog" id="glossary-table"><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody></tbody></table></div>
+  <footer>
+    <p>Digital Forge Video and Image Editor · <a href="https://github.com/GeekyGhost/Digital-Forge-Video-and-Image-Editor">GitHub</a> · <a href="https://github.com/GeekyGhost/Digital-Forge-Video-and-Image-Editor/blob/main/docs/INSTALL.md">Install guide</a> · <a href="https://github.com/GeekyGhost/Digital-Forge-Video-and-Image-Editor/blob/main/ACKNOWLEDGEMENTS.md">Acknowledgements</a> · <a href="https://github.com/GeekyGhost/Digital-Forge-Video-and-Image-Editor/blob/main/LICENSE.md">Licence</a></p>
+    <p>This guide describes the app as of version 0.7.0. If a control here does not match what you see, the app has moved on; the tooltips in the app are always current.</p>
+  </footer>
+</section>
+</main>
+</div>
+<script>
+(() => {
+"use strict";
+
+/* ---------------------------------------------------------------- helpers */
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const ui = (text) => `<span class="ui">${text}</span>`;
+const GPU = '<span class="gpu">GPU job</span>';
+const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = {
+  get(key) { try { return JSON.parse(window.localStorage.getItem(key) || "null"); } catch { return null; } },
+  set(key, value) { try { window.localStorage.setItem(key, JSON.stringify(value)); } catch { /* not remembered */ } },
+};
+
+/* ---------------------------------------------------------------- catalogue data (from the app's source) */
+const TRANSITIONS = [["Hard Cut", "Essentials", "Immediate edit with no visual overlap."], ["Cross Dissolve", "Essentials", "Smoothly blends the outgoing and incoming shots."], ["Film Dissolve", "Essentials", "A textured dissolve with a more organic blend."], ["Dip to Black", "Essentials", "Fades the outgoing shot through black."], ["Dip to White", "Essentials", "Fades the outgoing shot through white."], ["Luma Gray Fade", "Essentials", "Desaturates through gray while blending."], ["Fast Dissolve", "Essentials", "A dissolve weighted toward a quick handoff."], ["Slow Dissolve", "Essentials", "A dissolve with a softer, lingering handoff."], ["Blur Dissolve", "Essentials", "Adds horizontal blur through the edit."], ["Pixelate", "Essentials", "Breaks both shots into pixels during the transition."], ["Wipe Left", "Wipes", "Reveals the incoming shot from right to left."], ["Wipe Right", "Wipes", "Reveals the incoming shot from left to right."], ["Wipe Up", "Wipes", "Reveals the incoming shot from bottom to top."], ["Wipe Down", "Wipes", "Reveals the incoming shot from top to bottom."], ["Corner Wipe · Top Left", "Wipes", "Diagonal corner reveal toward the top-left."], ["Corner Wipe · Top Right", "Wipes", "Diagonal corner reveal toward the top-right."], ["Corner Wipe · Bottom Left", "Wipes", "Diagonal corner reveal toward the bottom-left."], ["Corner Wipe · Bottom Right", "Wipes", "Diagonal corner reveal toward the bottom-right."], ["Diagonal · Top Left", "Wipes", "Straight diagonal transition toward the top-left."], ["Diagonal · Top Right", "Wipes", "Straight diagonal transition toward the top-right."], ["Diagonal · Bottom Left", "Wipes", "Straight diagonal transition toward the bottom-left."], ["Diagonal · Bottom Right", "Wipes", "Straight diagonal transition toward the bottom-right."], ["Push Left", "Slides & Motion", "Pushes the outgoing shot left as the next enters."], ["Push Right", "Slides & Motion", "Pushes the outgoing shot right as the next enters."], ["Push Up", "Slides & Motion", "Pushes the outgoing shot upward."], ["Push Down", "Slides & Motion", "Pushes the outgoing shot downward."], ["Smooth Slide Left", "Slides & Motion", "A softened horizontal slide to the left."], ["Smooth Slide Right", "Slides & Motion", "A softened horizontal slide to the right."], ["Smooth Slide Up", "Slides & Motion", "A softened vertical slide upward."], ["Smooth Slide Down", "Slides & Motion", "A softened vertical slide downward."], ["Cover Left", "Slides & Motion", "The incoming shot covers the outgoing shot from the right."], ["Cover Right", "Slides & Motion", "The incoming shot covers the outgoing shot from the left."], ["Cover Up", "Slides & Motion", "The incoming shot covers from below."], ["Cover Down", "Slides & Motion", "The incoming shot covers from above."], ["Reveal Left", "Slides & Motion", "The outgoing shot moves left to reveal the next."], ["Reveal Right", "Slides & Motion", "The outgoing shot moves right to reveal the next."], ["Reveal Up", "Slides & Motion", "The outgoing shot moves up to reveal the next."], ["Reveal Down", "Slides & Motion", "The outgoing shot moves down to reveal the next."], ["Circle Crop", "Shapes & Iris", "A circular crop grows between shots."], ["Rectangle Crop", "Shapes & Iris", "A rectangular crop reveals the incoming shot."], ["Iris Open", "Shapes & Iris", "A circular iris opens onto the next shot."], ["Iris Close", "Shapes & Iris", "A circular iris closes into the next shot."], ["Clock Wipe", "Shapes & Iris", "A radial sweep rotates around the frame."], ["Distance Field", "Shapes & Iris", "A soft geometric distance-field reveal."], ["Vertical Open", "Shapes & Iris", "Opens vertically from the center."], ["Vertical Close", "Shapes & Iris", "Closes vertically toward the center."], ["Horizontal Open", "Shapes & Iris", "Opens horizontally from the center."], ["Horizontal Close", "Shapes & Iris", "Closes horizontally toward the center."], ["Slice · Left", "Slices & Wind", "Horizontal slices move toward the left."], ["Slice · Right", "Slices & Wind", "Horizontal slices move toward the right."], ["Slice · Up", "Slices & Wind", "Vertical slices move upward."], ["Slice · Down", "Slices & Wind", "Vertical slices move downward."], ["Wind · Left", "Slices & Wind", "Staggered bands sweep toward the left."], ["Wind · Right", "Slices & Wind", "Staggered bands sweep toward the right."], ["Wind · Up", "Slices & Wind", "Staggered bands sweep upward."], ["Wind · Down", "Slices & Wind", "Staggered bands sweep downward."], ["Squeeze Horizontal", "Stylized", "Compresses the frame horizontally through the cut."], ["Zoom In", "Stylized", "Zooms into the incoming shot."]];
+const MASK_FX = [["Subject Glow", "Light", "Soft colored light around the mask."], ["Energy Outline", "Light", "A crisp colored edge around the subject."], ["Movie Aura", "Light", "Layered atmospheric light for supernatural shots."], ["Neon Edge", "Light", "Studio42-style neon edge with a hot core and wide bloom."], ["Electric Arc", "Movie", "Animated lightning crawls around the selected subject."], ["Energy Shield", "Movie", "Pulsing concentric shield rings anchored to the mask."], ["Hero Spotlight", "Focus", "Protect the subject while dimming the scene."], ["Background Blur", "Focus", "Keep the subject sharp and soften everything else."], ["Privacy Pixelate", "Focus", "Pixelate outside—or invert to pixelate the subject."], ["Color Silhouette", "Stylize", "Fill the subject with a graphic color and halo."], ["Hologram", "Movie", "Tint, scan lines, and a projected-light edge."], ["Heat Vision", "Movie", "False-color thermal treatment inside the mask."], ["RGB Split", "Social", "Beat-friendly chromatic channel separation limited to the mask."], ["Subject Echo", "Social", "Offset screen-blended subject copies for motion and beat hits."], ["Fireball", "Movie", "Procedural flame orb, bloom and embers anchored to the subject."], ["Disintegrate", "Movie", "Animated masked particles peel away from the subject."], ["Comic Pop", "Social", "Posterized subject, ink edge and halftone energy."], ["Power Up", "Anime", "Subject-relative flame aura, gathering energy, pulses and a hot outline."], ["VFX Matte", "Build", "Color and animate a procedural shape or imported effect clip."]];
+const PRESETS = [["Reset effects", "Correction", "Return every image effect to neutral."], ["Clean contrast", "Correction", "A restrained contrast and saturation lift."], ["Exposure lift", "Correction", "Lift a dark clip without crushing color."], ["Portrait softening", "Correction", "Gentle diffusion with reduced sharpening."], ["Cinematic", "Looks", "Cooler, denser color with a subtle vignette."], ["Warm daylight", "Looks", "Warm the hue and lift natural color."], ["Cool steel", "Looks", "A cooler, lower-saturation technical look."], ["Monochrome", "Looks", "Neutral black and white with firm contrast."], ["Dream bloom", "Stylize", "Soft, bright diffusion for memory or fantasy shots."], ["Gritty documentary", "Stylize", "Hard contrast, reduced color, grain and detail."], ["Vintage print", "Stylize", "Faded warmth, low saturation and film grain."], ["Surreal color", "Stylize", "Strong hue shift and saturated color."]];
+const ELEMENTS = ["Smoke wisp", "Fireball", "Magic sparks", "Flames", "Explosion", "Dust burst", "Energy aura", "Flame aura (power-up)", "Energy rings", "Radial burst", "Fireball orb (held)"];
+
+
+const TEXT_MOTION = {
+  "Animate in": ["Fade in", "Type in", "Word reveal", "Slide up", "Slide down", "Slide from left", "Slide from right", "Pop in", "Spring bounce", "Zoom through blur", "Tracking reveal", "Cinematic rise", "Magic reveal", "Digital glitch"],
+  "Animate out": ["Fade out", "Type out", "Word dissolve", "Slide up", "Slide down", "Slide left", "Slide right", "Shrink out", "Zoom into blur", "Tracking dissolve", "Cinematic fall", "Magic dissolve", "Digital glitch"],
+  "While visible": ["Gentle pulse", "Slow float", "Neon flicker", "Soft breathe", "Light shimmer", "Micro jitter"],
+  "Easing": ["Linear", "Smooth", "Fast out", "Overshoot", "Bounce"],
+  "Style presets (Text Motion)": ["Clean", "Boxed", "Frame", "Cinema", "Neon", "Social Pop"],
+};
+const BLEND_LISTS = {
+  "Timeline blend modes (Inspector)": ["Normal", "Screen", "Multiply", "Overlay", "Darken", "Lighten", "Difference", "Hard light"],
+  "Layer blend modes (Photo Edit and VFX)": ["Normal", "Multiply", "Screen", "Overlay", "Darken", "Lighten", "Colour Dodge", "Colour Burn", "Hard Light", "Soft Light", "Difference", "Exclusion"],
+  "Mask Effects blend modes": ["Normal", "Screen", "Add", "Multiply", "Overlay", "Soft light"],
+  "Grade looks (Photo Edit)": ["None", "Aurora 64", "Halation", "Bleach", "Teal Night", "Mono 400", "Faded Print", "Sun Bleach"],
+  "Balloons": ["Speech", "Thought", "Shout", "Scream", "Broadcast", "Dripping", "Wobble", "Whisper", "Caption"],
+  "Shapes": ["Box", "Rounded", "Ellipse", "Polygon", "Star", "Burst", "Heart", "Bolt", "Splat", "Arrow", "Banner"],
+  "Behind the action": ["Impact", "Sunburst", "Speed lines"],
+  "Mask Effects recipes": ["Anime Power Up", "Dark Magic Aura", "Energy Shield", "Comic Surge", "Cinematic Explosion Plate"],
+};
+
+/* ---------------------------------------------------------------- models */
+const JOBS = ["Image", "Video", "Audio", "Masking and tracking", "Depth", "Text", "Upscale"];
+const MODELS = [
+  { name: "Z-Image Turbo", by: "Tongyi-MAI, Alibaba", jobs: ["Image"], install: "image-studio", disk: "part of 67 GB pack",
+    does: "Fast text-to-image stills in 9 steps. One image or a 4-seed grid.",
+    where: [["Image Studio → Generate → Fast", "#image-generate"]], tip: "Describe subject, environment, composition, lighting and lens. Use the 4-seed grid to choose a keyframe.",
+    licence: "See its model card." },
+  { name: "Z-Image Base", by: "Tongyi-MAI, Alibaba", jobs: ["Image"], install: "zimage-trainer", disk: "21 GB",
+    does: "The undistilled model: more variety between seeds, negative prompts and CFG, and the base for LoRA training.",
+    where: [["Image Studio → Generate → Creative", "#image-generate"], ["Train LoRA", "#lora"]], tip: "36 steps at CFG 4 is the default. LoRAs trained on Base match best here.",
+    licence: "Apache 2.0." },
+  { name: "Qwen Image Edit 2511", by: "Qwen, Alibaba · Lightning adapter by LightX2V", jobs: ["Image"], install: "image-studio", disk: "part of 67 GB pack",
+    does: "Instruction-based editing of up to three pictures at once, in FP8 with a 4-step Lightning adapter.",
+    where: [["Image Studio → Edit", "#image-edit"]], tip: "Say what changes and what stays. Keep Output size on Default for keyframes that must match.",
+    licence: "See its model card." },
+  { name: "Qwen2.5-VL and Gemma 3 (captioners)", by: "Qwen, Alibaba · Google", jobs: ["Text"], install: "zimage-trainer", disk: "with the trainer runtime",
+    does: "Look at pictures and write text: the Rewrite button for edit instructions, and auto-captions for LoRA datasets.",
+    where: [["Image Studio → Edit → Rewrite", "#image-edit"], ["Train LoRA → Auto-caption", "#lora"]], tip: "Gemma 3 writes more detailed captions; Qwen is the default.",
+    licence: "See each model card. Gemma is gated." },
+  { name: "BiRefNet", by: "Peng Zheng", jobs: ["Masking and tracking"], install: "image-studio", disk: "part of 67 GB pack",
+    does: "Finds the foreground automatically with soft, detailed edges (hair, fur, motion blur).",
+    where: [["Image Studio background remover", "#image-tools"], ["Timeline Background removal", "#background-removal"], ["Insert character matte", "#character"]], tip: "Best when there is one obvious subject. Pair it with SAM 2 to choose which one.",
+    licence: "See its repository." },
+  { name: "SAM 2.1", by: "Meta AI", jobs: ["Masking and tracking"], install: "core-models (weights) + image-studio (runtime)", disk: "part of 4 GB pack",
+    does: "Click a subject once and it is followed through the clip. Up to 900 frames per run.",
+    where: [["AI panel tracking", "#sam2-tracking"], ["Background removal", "#background-removal"], ["Mask Effects", "#mask-effects"], ["Masks → Click-select", "#photo-masks"]], tip: "Add exclude points with Shift+click; add points on later frames where it slips.",
+    licence: "Apache 2.0." },
+  { name: "Whisper large-v3-turbo", by: "OpenAI", jobs: ["Text", "Audio"], install: "core-models", disk: "part of 4 GB pack",
+    does: "Transcribes speech into timed captions on C1.",
+    where: [["Inspector → Auto-caption this clip", "#inspector"]], tip: "Timings can drift a few hundred milliseconds on long single-speaker takes; nudge the cues.",
+    licence: "MIT." },
+  { name: "LTX 2.3 distilled", by: "Lightricks · text encoder Gemma 3 12B by Google", jobs: ["Video", "Audio"], install: "ltx", disk: "about 100 GB",
+    does: "Video with synchronized audio: first + last frame, image, text, clip extend, clip to clip, retake, and foley.",
+    where: [["AI panel → LTX", "#ltx"], ["Clip editor → LTX Retake", "#retake"], ["SFX → Picture Foley", "#sfx"]], tip: "8n+1 frames at 24 fps. Keep CFG at 1.0 unless you need the Avoid prompt.",
+    licence: "LTX-2 Community License: check its eligibility, revenue and competitive-use terms. The Gemma encoder is gated on Hugging Face." },
+  { name: "LTX Foley V2A LoRA", by: "Lightricks", jobs: ["Audio"], install: "ltx", disk: "3 GB",
+    does: "Makes LTX listen to the picture, so the generated sound lands on the action.",
+    where: [["AI panel → Video → audio", "#ltx"], ["SFX → Picture Foley · LTX", "#sfx"]], tip: "Raise reference hold if the sound ignores the action; lower LoRA strength if it sounds processed.",
+    licence: "LTX-2 Community License. Gated: accept its terms on Hugging Face first." },
+  { name: "MiniMax-H3 (FL2VA)", by: "MiniMax · INT8 ConvRot by Comfy-Org · Turbo adapters by LightX2V", jobs: ["Video", "Audio"], install: "h3", disk: "about 63 GB",
+    does: "Joint video and sound: text, image, first + last frame, up to a last frame, continue a clip, bridge two clips.",
+    where: [["AI panel → MiniMax-H3", "#h3"]], tip: "Turbo 8-step at 544p is the everyday setting. 17n+5 frames, 5 to 14 s.",
+    licence: "MiniMax Model License Agreement." },
+  { name: "MiniMax-H3 Ref2VA", by: "MiniMax · INT8 ConvRot by Comfy-Org · Turbo adapter by LightX2V", jobs: ["Video", "Audio"], install: "h3 (second pack)", disk: "about 21 GB",
+    does: "Video with sound from a cast of image, video and audio references, with written shots and dialogue.",
+    where: [["Ref2V workspace", "#ref2v"], ["AI panel → References mode", "#h3"]], tip: "Order the cast deliberately: it sets the reference numbers the prompt uses.",
+    licence: "MiniMax Model License Agreement." },
+  { name: "Kiwi-Edit 5B", by: "Show Lab, NUS", jobs: ["Video"], install: "kiwi-edit", disk: "20 GB",
+    does: "Rewrites a range of a clip from an instruction, optionally guided by a reference image.",
+    where: [["Clip editor → Kiwi-Edit", "#kiwi"]], tip: "Instruction strength around 4. At 1.0 the result looks like the input.",
+    licence: "Repository MIT; component model licences differ." },
+  { name: "MOSS-SoundEffect v2", by: "OpenMOSS", jobs: ["Audio"], install: "moss (weights placed by hand)", disk: "see the release",
+    does: "A sound effect from a description, up to 30 seconds.",
+    where: [["Clip editor → SFX → Designed SFX", "#sfx"]], tip: "Draft (30 steps) to find the sound, Final (100 steps) for the keeper. Use Exclude to keep voices and music out.",
+    licence: "See its repository." },
+  { name: "Wan-Alpha v2.0", by: "WeChatCV · on Wan2.1-T2V-14B by Wan-AI · 4-step LoRA by LightX2V", jobs: ["Video"], install: "wan-alpha", disk: "about 71 GB download, 14 GB after the bake",
+    does: "Transparent animated elements: smoke, fire, sparks, energy, at 832 × 480 and 16 fps.",
+    where: [["VFX → Elements", "#elements"]], tip: "33 frames takes about 1.5 minutes. Thicken the core with an Alpha curve step.",
+    licence: "See its model card." },
+  { name: "Wan Animate 2 (14B distilled)", by: "Wan-AI", jobs: ["Video"], install: "wan-animate", disk: "about 46 GB download, 17 GB after the bake",
+    does: "Animates a character picture with the exact motion of a driving clip, for character replacement.",
+    where: [["VFX → Insert character", "#character"]], tip: "Track the actor with SAM 2 first, and use a full-body character on a plain background.",
+    licence: "Apache 2.0." },
+  { name: "CoTracker3", by: "Meta AI", jobs: ["Masking and tracking"], install: "motion", disk: "small",
+    does: "Follows points through video, even when they turn or are briefly covered.",
+    where: [["VFX → Tracks", "#tracks"], ["Background removal → Track assist", "#background-removal"]], tip: "The built-in Lucas-Kanade tracker needs no model and is fine for simple, well-lit motion.",
+    licence: "CC-BY-NC 4.0: non-commercial use only." },
+  { name: "Video Depth Anything Small", by: "Depth Anything team", jobs: ["Depth"], install: "motion", disk: "small",
+    does: "Consistent depth for every frame of a clip, computed once and cached.",
+    where: [["VFX → Tracks → Compute depth", "#depth"]], tip: "Use Occlude by depth to let an effect pass behind a foreground object.",
+    licence: "Apache 2.0." },
+  { name: "Depth Anything V2", by: "Depth Anything team", jobs: ["Depth"], install: "photo", disk: "about 100 MB (Small) or 380 MB (Base)",
+    does: "Depth from a single still, used to light a picture from a new direction.",
+    where: [["Photo Edit → Relight", "#photo-stack"]], tip: "Run Download-Photo-Models.bat base for the better model.",
+    licence: "See its model card." },
+  { name: "LaMa", by: "Samsung AI (big-lama)", jobs: ["Image"], install: "photo", disk: "about 200 MB",
+    does: "Fills a painted area with plausible background.",
+    where: [["Photo Edit → Remove", "#photo-stack"], ["Clean plate fill", "#character"]], tip: "Paint a little beyond the object, including its shadow.",
+    licence: "See its repository." },
+  { name: "Real-ESRGAN", by: "Xintao Wang et al.", jobs: ["Upscale"], install: "core-models", disk: "0.16 GB",
+    does: "Rebuilds detail when enlarging stills and video, at 2× or 4×.",
+    where: [["Export → Upscale", "#export"], ["Image Studio → Export and upscale", "#image-tools"]], tip: "Lightweight 4× is about ten times faster and the practical choice for video.",
+    licence: "BSD 3-Clause." },
+  { name: "NVIDIA Video Super Resolution", by: "NVIDIA", jobs: ["Upscale"], install: "rtx-upscale", disk: "from NVIDIA",
+    does: "RTX upscaling at 2×, 3× or 4×, with or without compression clean-up.",
+    where: [["Export → Upscale → NVIDIA RTX", "#export"]], tip: "The clean-source quality levels keep more of footage that was never heavily compressed.",
+    licence: "NVIDIA's own licence; downloaded from NVIDIA after you accept it." },
+  { name: "Built in, no model", by: "FFmpeg and the app's own code", jobs: ["Video", "Audio", "Masking and tracking"], install: "always present", disk: "none",
+    does: "Probing, thumbnails and waveforms, audio denoise, pause detection, the Lucas-Kanade tracker, the compositor and every export.",
+    where: [["Inspector → Audio", "#inspector"], ["VFX → Tracks", "#tracks"], ["Export", "#export"]], tip: "The editor is fully usable with nothing else installed.",
+    licence: "FFmpeg's licence depends on the build you installed." },
+];
+
+function renderModels() {
+  const filters = $("#model-filters"), grid = $("#model-cards"), count = $("#model-count");
+  if (!filters || !grid) return;
+  let active = "All";
+  filters.innerHTML = ["All", ...JOBS].map((job) => `<button type="button" aria-pressed="${job === "All"}">${job}</button>`).join("");
+  grid.innerHTML = MODELS.map((model) => `<article class="card" data-jobs="${esc(model.jobs.join("|"))}">
+      <h4>${esc(model.name)}</h4>
+      <div class="by">${esc(model.by)}</div>
+      <p>${esc(model.does)}</p>
+      <dl>
+        <dt>Install</dt><dd>${esc(model.install)}</dd>
+        <dt>Disk</dt><dd>${esc(model.disk)}</dd>
+        <dt>Appears in</dt><dd>${model.where.map(([label, href]) => `<a href="${href}">${esc(label)}</a>`).join(", ")}</dd>
+        <dt>Tip</dt><dd>${esc(model.tip)}</dd>
+        <dt>Licence</dt><dd>${esc(model.licence)}</dd>
+      </dl>
+      <div class="tags">${model.jobs.map((job) => `<span>${esc(job)}</span>`).join("")}</div>
+    </article>`).join("");
+  const apply = () => {
+    let shown = 0;
+    $$(".card", grid).forEach((card) => {
+      const visible = active === "All" || card.dataset.jobs.split("|").includes(active);
+      card.classList.toggle("hidden", !visible);
+      if (visible) shown++;
+    });
+    count.textContent = `${shown} of ${MODELS.length} shown`;
+  };
+  filters.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    active = button.textContent;
+    $$("button", filters).forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+    apply();
+  });
+  apply();
+}
+
+/* ---------------------------------------------------------------- the full shot */
+const FULL_SHOT = [
+  { title: "Keyframes", where: "Image Studio", steps: [
+    `Open ${ui("Image Studio")} → ${ui("Generate")} → ${ui("Fast")}. Choose ${ui("16:9")} and ${ui("4-seed grid")}.`,
+    `Write the opening frame: who, where, the pose, the light, and <em>full body in frame, static camera</em>. ${ui("Generate 4 variations")} ${GPU}`,
+    `Click the best one on the canvas. It is now Image 1.`,
+    `Switch to ${ui("Edit")}, keep ${ui("Lightning")} and ${ui("Output size")} on Default, and describe the end of the shot: <em>“The same person in the same place, same lighting and framing, now … ”</em>. ${ui("Generate edited image")} ${GPU}`,
+    `If the edit drifted from the original, try ${ui("Balanced")} or a new seed until the two frames clearly belong to one shot.`,
+    `Back in ${ui("Generate")}, make the replacement character: <em>full-body … standing, plain neutral grey studio background</em>.`,
+    `Rename the three pictures with the wand on their tiles so they are easy to find later.`,
+  ]},
+  { title: "The shot", where: "Video Editor → AI panel", steps: [
+    `Open the ${ui("Video Editor")}, then the Inspector's ${ui("AI")} tab. Set ${ui("Model")} to <em>MiniMax-H3</em> and ${ui("Mode")} to <em>First + last frame</em>.`,
+    `Pick the start still as ${ui("First frame")} and the edited still as ${ui("Last frame")}.`,
+    `Prompt the action between them, include <em>locked-off static camera</em>, and describe what it should sound like.`,
+    `Keep ${ui("Sampling")} on <em>Turbo</em> and ${ui("Canvas")} on 544; set ${ui("Frames")} to 124–175. Click ${ui("Generate video + audio, place on V1 and A1")} and choose where to save. ${GPU}`,
+    `Trim the clip's head or tail on the timeline if it needs it.`,
+  ]},
+  { title: "Swap in the character", where: "Clip editor → VFX", steps: [
+    `Select the V1 clip, press <kbd>Ctrl</kbd>+<kbd>K</kbd> and choose ${ui("VFX")}. Click ${ui("Whole clip")}.`,
+    `In ${ui("Masks")}: ${ui("New mask")}, then ${ui("Click-select")} three points down the actor's body, then ${ui("Run")}. SAM 2 tracks the actor through the shot. ${GPU}`,
+    `Optional: ${ui("Tracks")} → ${ui("Compute depth")}. ${GPU}`,
+    `In ${ui("Insert character")}: name it, pick the character still, describe it, keep ${ui("Driving clip")} on <em>This plate</em>, set ${ui("Actor matte (SAM 2)")} to your mask, size 512², and tick Relight and ${ui("Paint the actor out around the character")}.`,
+    `${ui("Animate and insert")}. About ten minutes for 75 frames on a 16 GB card. ${GPU}`,
+    `Scrub the time bar. The character should cover the actor with the background rebuilt around it. If the clean plate reports “not locked off”, the camera moved: regenerate the shot with a static camera.`,
+  ]},
+  { title: "Spritesheet of the character", where: "Clip editor → VFX → Spritesheet", steps: [
+    `Under ${ui("Spritesheet")}, set ${ui("Source")} to the character layer alone, ${ui("Every")} 2, ${ui("Scale")} 50%, trim and loop on.`,
+    `${ui("Export spritesheet")}. The atlas PNG, Godot <code>.tres</code> and JSON land in <code>exports\\spritesheets\\&lt;name&gt;\\</code>.`,
+  ]},
+  { title: "An effect that follows the hand", where: "Clip editor → VFX", steps: [
+    `Open ${ui("Elements")} from the Canvas card. Under <em>Generate with Wan Alpha</em>, choose <em>Fireball orb (held)</em>, 33 frames, ${ui("Generate element")}. ${GPU}`,
+    `Click the new element to add it as a layer, and keep it selected.`,
+    `In ${ui("Tracks")}, set ${ui("Engine")} to CoTracker3, click ${ui("Track a point + attach the selected layer")}, then click the character's hand. ${GPU}`,
+    `Make it solid and lasting: add an ${ui("Alpha curve")} step and raise gain; in ${ui("Timing")} turn on ${ui("Loop")} with a crossfade of a few frames.`,
+    `${ui("Render VFX")}, then ${ui("Replace … on the timeline")}.`,
+  ]},
+  { title: "Extend the shot and add transitions", where: "Video Editor", steps: [
+    `Select the clip. In the AI panel with MiniMax-H3, choose <em>Clip → video + audio</em>, describe what happens next (camera still locked off) and click ${ui("Continue selected clip + insert")}. ${GPU}`,
+    `Or use LTX's <em>Clip extend</em> for a shorter continuation.`,
+    `Select the first clip and set ${ui("Transition in")} to <em>Dip to Black</em>: the film fades up. Select the last clip and set ${ui("Transition out")} the same way.`,
+    `Between different shots, a <em>Cross Dissolve</em> or a <em>Push</em> reads well; an extension of the same shot usually looks best as a straight cut.`,
+  ]},
+  { title: "New sound", where: "Clip editor → SFX", steps: [
+    `Mute ${ui("A1 · Clip Audio")} with its ${ui("M")} button to drop H3's own soundtrack.`,
+    `Select the first V1 clip, <kbd>Ctrl</kbd>+<kbd>K</kbd>, ${ui("SFX")}, ${ui("Picture Foley · LTX")}, ${ui("Whole clip")}. Describe the sounds, set ${ui("Foley amount")} to Detailed, and generate. ${GPU}`,
+    `Audition with ${ui("Original audio")} off, then ${ui("Add to SFX track")}. Repeat for the extension.`,
+    `For the moment the orb flares: set a tight range around it, switch to ${ui("Designed SFX · MOSS")}, describe it (<em>“a deep magical whoosh igniting into a crackling burst”</em>), generate on Draft, then Final. ${GPU}`,
+    `Line it up with ${ui("← 1 frame")} / ${ui("1 frame →")}, set gain and a short fade out, keep the tail, and ${ui("Add to SFX track")}.`,
+  ]},
+  { title: "A tracked glow on the subject, and the scene look", where: "Clip editor → Mask Effects, Inspector", steps: [
+    `Select the clip that now shows the character, <kbd>Ctrl</kbd>+<kbd>K</kbd>, ${ui("Mask Effects")}. ${ui("+ Include")} on the character, then ${ui("1 · Track subject")}. ${GPU}`,
+    `Pick the <em>Anime Power Up</em> recipe (or <em>Energy Outline</em> for something quieter). Keep it ${ui("Behind subject")}; set ${ui("Animate in")} to <em>Power gathering</em>.`,
+    `Optional: ${ui("Audio reactive")} → <em>Hits + transients</em> reacts to the clip's own soundtrack.`,
+    `${ui("2 · Save VFX layer (renders live)")}, then ${ui("Done · keep VFX layer")}.`,
+    `For the scene: select each clip and apply the <em>Cinematic</em> preset from the Media bin's ${ui("Effects")} tab, adding a little ${ui("Noise")} so the generated footage has grain.`,
+  ]},
+  { title: "Title, preview and export", where: "Clip editor → Text Motion, Export", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("Text Motion")}: preset <em>Cinema</em>, your title, ${ui("Animate in")} <em>Tracking reveal</em>, ${ui("Add to G1")}.`,
+    `Park the playhead on each key moment and click ${ui("Quick preview")} to check picture and sound together.`,
+    `Export tab: MP4, H.264 NVENC, quality 19, 1080p. Optionally ${ui("Upscale")} with NVIDIA RTX 2× or Real-ESRGAN Lightweight. ${ui("Choose file and render")}.`,
+    `Save the project with <kbd>Ctrl</kbd>+<kbd>S</kbd>.`,
+  ]},
+];
+
+/* ---------------------------------------------------------------- recipes */
+const AREAS = ["Video Editor", "Clip editor", "Image Studio", "Photo Edit", "Ref2V", "Sound"];
+const RECIPES = [
+  { title: "Cut a subject out and put it on a new background", areas: ["Video Editor"], why: "Green-screen without the green screen.", steps: [
+    `Put the new background on V1 and the subject clip on V2, lined up.`,
+    `Select the subject clip and choose ${ui("Pick + soft edges (both)")} under Background removal in the Inspector.`,
+    `${ui("Pick subject in monitor")}, click the subject (Shift+click anything wrong), then ${ui("Remove background")}. ${GPU}`,
+    `Tidy the edge live with ${ui("Edge feather")} and a small negative ${ui("Grow / shrink")}.`,
+  ]},
+  { title: "Blur the background or pixelate a face", areas: ["Clip editor"], why: "Focus or privacy that follows the subject.", steps: [
+    `Select the clip, <kbd>Ctrl</kbd>+<kbd>K</kbd>, ${ui("Mask Effects")}. Include-click the subject (or the face) and ${ui("1 · Track subject")}. ${GPU}`,
+    `For focus: effect <em>Background Blur</em> or <em>Hero Spotlight</em>. For privacy: <em>Privacy Pixelate</em> with ${ui("Invert mask")} off to pixelate everything else, or on to pixelate the subject.`,
+    `${ui("2 · Save VFX layer (renders live)")}.`,
+  ]},
+  { title: "Continue a clip past its last frame", areas: ["Video Editor"], why: "More shot than you filmed or generated.", steps: [
+    `Select the V1 clip. In the AI panel pick <em>MiniMax-H3 → Clip → video + audio</em> (5–14 s, with sound) or <em>LTX → Clip extend</em> (shorter, faster).`,
+    `Describe what happens next, keeping camera and lighting consistent.`,
+    `Generate. The continuation starts on the exact last visible frame and is ripple-inserted after the clip. ${GPU}`,
+  ]},
+  { title: "Fill the gap between two clips", areas: ["Video Editor"], why: "Invent the motion that joins two shots.", steps: [
+    `Select the first of two V1 clips.`,
+    `AI panel: <em>MiniMax-H3 → Clip → clip + audio</em> or <em>LTX → Clip to clip</em>.`,
+    `With H3, choose ${ui("Bridge length")}: fill the gap exactly, or set a duration and let later clips move along.`,
+    `Generate. The bridge starts on the first clip's last frame and ends on the next clip's first. ${GPU}`,
+  ]},
+  { title: "Change something in a clip with words", areas: ["Clip editor"], why: "“Make it snow”, “change the jacket to red”.", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("Kiwi-Edit")}. Set the range with ${ui("Set in")} and ${ui("Set out")}.`,
+    `Write the instruction; keep ${ui("Instruction strength")} around 4. Add a reference image for a specific look.`,
+    `${ui("Edit the selected range")}, review, then ${ui("Replace selected range")}. ${GPU}`,
+  ]},
+  { title: "Redo a bad moment", areas: ["Clip editor"], why: "Regenerate two seconds without touching the rest.", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("LTX Retake")}. Select at least two seconds around the problem.`,
+    `Prompt the moment as it should be: subject, action in order, camera, light, sound. Choose ${ui("Regenerate")}: video, audio or both.`,
+    `${ui("Retake the selected range")}, check ${ui("Context + seams")}, then replace. ${GPU}`,
+  ]},
+  { title: "Put a sound effect exactly on a hit", areas: ["Clip editor", "Sound"], why: "Designed sound that lands on the frame.", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("SFX")} → ${ui("Designed SFX · MOSS")}. Set a range around the hit.`,
+    `Describe the sound and list what to ${ui("Exclude")}. Generate on Draft; ${ui("Try another")} for options. ${GPU}`,
+    `Nudge ${ui("Cue offset")} frame by frame until the waveform's attack sits on the hit. Then ${ui("Add to SFX track")}.`,
+  ]},
+  { title: "Give a silent clip its sound", areas: ["Clip editor", "Sound"], why: "Foley that follows the picture.", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("SFX")} → ${ui("Picture Foley · LTX")}, ${ui("Whole clip")}.`,
+    `Describe what should be heard; exclude music or voices if unwanted. ${GPU}`,
+    `Or, for a whole new soundtrack muxed onto the clip, use LTX <em>Video → audio</em> in the AI panel.`,
+  ]},
+  { title: "Caption a talking clip", areas: ["Video Editor"], why: "Timed, editable captions in one click.", steps: [
+    `Select the clip and click ${ui("Auto-caption this clip")} in the Inspector. ${GPU}`,
+    `Captions land on C1. Select one to change its text, font, backdrop and motion.`,
+    `Or import an existing SRT or WebVTT from the Graphics tab.`,
+  ]},
+  { title: "Tighten pauses in a talking clip", areas: ["Video Editor"], why: "Cut dead air automatically.", steps: [
+    `Select the V1 clip and click ${ui("Find frozen and silent pauses")}.`,
+    `Review each candidate and click ${ui("Remove + ripple")} on the ones to cut.`,
+  ]},
+  { title: "Clean up noisy audio", areas: ["Video Editor", "Sound"], why: "Hiss, hum and generated-audio artefacts.", steps: [
+    `Select the clip. In the Inspector's Audio section choose ${ui("Denoise strength")} (start with Medium).`,
+    `Tick ${ui("Normalise to −16 LUFS")} if you want an even level, then ${ui("Denoise audio")}.`,
+    `The original file is untouched; undo brings it back.`,
+  ]},
+  { title: "Put fire in someone's hand", areas: ["Clip editor"], why: "A tracked, looping element.", steps: [
+    `<kbd>Ctrl</kbd>+<kbd>K</kbd> → ${ui("VFX")}. Generate a Wan Alpha element (<em>Fireball orb (held)</em> or <em>Flames</em>) or import a PNG sequence. ${GPU}`,
+    `Add it, keep it selected, and ${ui("Track a point + attach the selected layer")} on the hand.`,
+    `Add a ${ui("Trail")} step so its top lags behind fast moves, and loop it in ${ui("Timing")}.`,
+    `${ui("Render VFX")} → ${ui("Replace")}.`,
+  ]},
+  { title: "Let an effect pass behind something", areas: ["Clip editor"], why: "Depth occlusion.", steps: [
+    `In ${ui("VFX")}, ${ui("Tracks")} → ${ui("Compute depth")}. ${GPU}`,
+    `Select the effect layer and click ${ui("Occlude by depth")}.`,
+    `In ${ui("Masks")}, adjust the depth entry's plane and softness until the foreground object covers it correctly.`,
+  ]},
+  { title: "Replace a person with a character and export sprites", areas: ["Clip editor"], why: "Wan Animate plus a clean plate plus a Godot spritesheet.", steps: [
+    `Follow <a href="#character">Insert character</a> on a locked-off shot of a person moving.`,
+    `Then follow <a href="#spritesheet">Export a spritesheet</a> with the character layer alone as the source.`,
+  ]},
+  { title: "Make matching start and end frames", areas: ["Image Studio"], why: "The best input for first + last frame video.", steps: [
+    `Generate a keyframe in ${ui("Fast")} with the 4-seed grid. ${GPU}`,
+    `Select it, switch to ${ui("Edit")}, and describe only what changes by the end. Keep Output size on Default. ${GPU}`,
+    `Optionally open both in Photo Edit and apply the same grade so they match exactly.`,
+  ]},
+  { title: "Combine two pictures", areas: ["Image Studio"], why: "Put the person from one picture into another scene.", steps: [
+    `Select the scene on the canvas (Image 1), and click the Image 2 box to add the person.`,
+    `Instruct: <em>“Place the person from picture 2 into picture 1, standing by the door, matching the lighting.”</em> ${ui("Rewrite")} can tighten it. ${GPU}`,
+    `${ui("Generate edited image")}. ${GPU}`,
+  ]},
+  { title: "Train a character and use it", areas: ["Image Studio"], why: "The same character in every frame.", steps: [
+    `Collect 10–30 clear pictures of the character from several angles.`,
+    `${ui("Train LoRA")}: profile <em>Designed character</em>, keep the suggested trigger, ${ui("Choose images")}, ${ui("Auto-caption")}, and fix the captions. ${GPU}`,
+    `Train at 1024 for identity. Test checkpoints with ${ui("Test in Image Studio")} as they are saved. ${GPU}`,
+    `In Generate, select the LoRA, insert its trigger, and generate. ${GPU}`,
+  ]},
+  { title: "Take a still from a video and clean it up", areas: ["Image Studio", "Photo Edit"], why: "A thumbnail or a new keyframe.", steps: [
+    `Image Studio → ${ui("Choose video")}, step to the frame, ${ui("Select current frame")}, ${ui("Add selected to canvas")}.`,
+    `Click ${ui("Edit")} on its tile to open it in Photo Edit.`,
+    `Add a ${ui("Remove")} step, paint over the unwanted object, and ${ui("Fill the masked area")}. ${GPU} Add a ${ui("Grade")} to finish.`,
+  ]},
+  { title: "Letter a comic panel", areas: ["Photo Edit"], why: "Balloons, captions and impact shapes.", steps: [
+    `Open the picture in Photo Edit. From the Canvas card add a <em>Speech</em> balloon; drag its tail handle to the speaker.`,
+    `Type the lines in the balloon's text; add a <em>Caption</em> box and a <em>Burst</em> or <em>Speed lines</em> behind the action.`,
+    `${ui("Save to Project Media")} or export as PNG.`,
+  ]},
+  { title: "Make a vertical version of a 16:9 edit", areas: ["Video Editor"], why: "Social delivery without re-editing.", steps: [
+    `${ui("Sequence settings")}: aspect preset <em>9:16 vertical</em>; default fit <em>Fill</em>.`,
+    `Per clip, use ${ui("Source zoom")} and ${ui("Pan X")} in Aspect and crop to keep the subject in frame.`,
+    `Export at <em>Vertical · 1080 × 1920</em>.`,
+  ]},
+  { title: "Upscale a finished video", areas: ["Video Editor"], why: "A sharper master from a 544p or 720p edit.", steps: [
+    `Export tab → ${ui("Upscale")} on. Choose NVIDIA RTX (fast) or Real-ESRGAN with a tile size.`,
+    `Pick the amount and check the ${ui("Resolved chain")}.`,
+    `Render. Expect the upscale pass to take longer than the render itself. ${GPU}`,
+  ]},
+  { title: "Put the same character in a new scene with dialogue", areas: ["Ref2V"], why: "Identity, voice and a written shot.", steps: [
+    `In Ref2V, add pictures of the character (role <em>Subject / identity</em>, <em>Keep exactly</em>) and a 2–15 s voice sample (role <em>Voice / timbre</em>).`,
+    `Define a subject on the picture, then write the shot and add a dialogue line spoken by that subject.`,
+    `Clear the preflight blocks and ${ui("Generate Ref2V")}. Send the best take to the timeline. ${GPU}`,
+  ]},
+];
+
+function recipeHtml(recipe, key, open = false) {
+  const done = new Set(store.get(key) || []);
+  return `<details class="recipe" data-key="${esc(key)}" data-areas="${esc(recipe.areas ? recipe.areas.join("|") : "")}"${open ? " open" : ""}>
+    <summary>${esc(recipe.title)}<span class="where">${esc(recipe.where || recipe.areas.join(", "))}</span><span class="progress"></span></summary>
+    <div>
+      ${recipe.why ? `<p class="why">${esc(recipe.why)}</p>` : ""}
+      <ol>${recipe.steps.map((step, index) => `<li class="${done.has(index) ? "done" : ""}"><input type="checkbox" data-step="${index}" aria-label="Step ${index + 1} done"${done.has(index) ? " checked" : ""}><span>${step}</span></li>`).join("")}</ol>
+      <button type="button" class="reset">Clear ticks</button>
+    </div>
+  </details>`;
+}
+
+function wireRecipes(root) {
+  const update = (details) => {
+    const boxes = $$("input[type=checkbox]", details);
+    const ticked = boxes.filter((box) => box.checked).length;
+    $(".progress", details).textContent = ticked ? `${ticked}/${boxes.length} done` : "";
+  };
+  $$("details.recipe", root).forEach(update);
+  root.addEventListener("change", (event) => {
+    const box = event.target.closest("input[type=checkbox][data-step]");
+    if (!box) return;
+    const details = box.closest("details.recipe");
+    box.closest("li").classList.toggle("done", box.checked);
+    store.set(details.dataset.key, $$("input[data-step]", details).filter((item) => item.checked).map((item) => Number(item.dataset.step)));
+    update(details);
+  });
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("button.reset");
+    if (!button) return;
+    const details = button.closest("details.recipe");
+    $$("input[data-step]", details).forEach((item) => { item.checked = false; item.closest("li").classList.remove("done"); });
+    store.set(details.dataset.key, []);
+    update(details);
+  });
+}
+
+function renderRecipes() {
+  const full = $("#full-shot-steps");
+  if (full) {
+    full.innerHTML = FULL_SHOT.map((phase, index) => recipeHtml({ ...phase, title: `${index + 1}. ${phase.title}` }, `df-guide-full-${index}`, index === 0)).join("");
+    wireRecipes(full);
+  }
+  const list = $("#recipe-list"), filters = $("#recipe-filters"), query = $("#recipe-q"), count = $("#recipe-count");
+  if (!list) return;
+  list.innerHTML = RECIPES.map((recipe, index) => recipeHtml(recipe, `df-guide-recipe-${index}`)).join("");
+  wireRecipes(list);
+  let area = "All";
+  query.insertAdjacentHTML("beforebegin", ["All", ...AREAS].map((item) => `<button type="button" aria-pressed="${item === "All"}">${item}</button>`).join(""));
+  const apply = () => {
+    const terms = query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    $$("details.recipe", list).forEach((details) => {
+      const text = details.textContent.toLowerCase();
+      const inArea = area === "All" || details.dataset.areas.split("|").includes(area);
+      const visible = inArea && terms.every((term) => text.includes(term));
+      details.classList.toggle("hidden", !visible);
+      if (visible) shown++;
+    });
+    count.textContent = `${shown} of ${RECIPES.length} recipes`;
+  };
+  filters.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    area = button.textContent;
+    $$("button", filters).forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+    apply();
+  });
+  query.addEventListener("input", apply);
+  apply();
+}
+
+/* ---------------------------------------------------------------- catalogues, troubleshooting, glossary */
+const TROUBLE = [
+  ["A panel says MISSING, Incomplete or “not ready”", `Run <code>Install-Digital-Forge.bat</code> again and pick that feature. The pill or the runtime line at the bottom of the AI panel names what is missing. A finished install is skipped, so re-running is safe.`],
+  ["“The worker failed”, or the model process died", `Open the red box: the last lines name the cause. The same text is in <code>.aiv\\worker.log</code>. Out-of-memory problems show as <code>CUDA out of memory</code>, <code>0xC0000005</code> or <code>os error 1455</code>.`],
+  ["A crash with 0xC0000005, or os error 1455", `Windows ran out of commit memory (RAM plus page file). Close large programs such as a local LLM, make sure the system drive has free space, and check the page file: <code>scripts\\fix-pagefile.ps1 -ReportOnly</code> from an administrator PowerShell, then <code>scripts\\fix-pagefile.ps1</code> and reboot.`],
+  ["The resource guard dialog keeps appearing", `Something else holds memory. The dialog lists the processes. Close them, or use ${ui("Release this app's worker")} if the app's own LTX worker is resident.`],
+  ["The monitor says it could not read a file", `Some codecs cannot be decoded by the Windows web view. Switch to the ${ui("Legacy monitor")} to check, and convert the file to H.264 MP4 for editing.`],
+  ["“Render needs at least one ENABLED clip on the V1 track”", `Put a clip on V1, and check that V1 is not hidden and its clips are not disabled.`],
+  ["LTX refuses to start with text in Avoid", `A negative prompt needs guidance. Raise ${ui("CFG (video)")} or ${ui("CFG (audio)")} above 1.0, or clear the Avoid box.`],
+  ["Retake gives back the original", `Widen the range to two seconds or more. Short ranges are dominated by the untouched frames around them.`],
+  ["Kiwi-Edit result looks like the input", `${ui("Instruction strength")} is probably at 1.0. Raise it to about 4.`],
+  ["A LoRA barely shows in Fast mode", `It was trained on Base. Raise ${ui("LoRA strength")} to 1.5–2.5 or use Creative mode. Check the trigger word is in the prompt.`],
+  ["The clean plate says “not locked off”", `The camera moves in that range. The clean plate only works on a static camera. Generate or film the shot with a locked-off camera, or shorten the range to a still part.`],
+  ["Background removal shows REMAKE", `A setting that needs a new matte changed, or the clip was trimmed past it. Click ${ui("Remake with these settings")}.`],
+  ["Gated downloads fail (Gemma, Foley LoRA)", `Accept the terms on each Hugging Face page, create a read token, and log in: <code>.venv\\Scripts\\hf.exe auth login</code>. Then run the installer again.`],
+  ["My changes to the source do not show in the app", `The launcher runs the newest compiled build. Rebuild with <code>Build-AIV-Studio.bat</code>; the launcher warns when the build is older than the source.`],
+];
+
+const GLOSSARY = [
+  ["Plate", "The original footage an effect is composited over. In clip VFX, the clip range itself."],
+  ["Matte", "A black-and-white image saying what to keep (white) and what to cut (black), frame by frame."],
+  ["Clean plate", "The background with the actor painted out, rebuilt from other frames of a locked-off shot."],
+  ["Element", "A transparent animated effect (smoke, fire) stored as a PNG sequence in the elements folder."],
+  ["Emitter", "A layer that spawns copies of an element over time from a point or a track."],
+  ["Track", "The path of one point through a clip, measured by CoTracker3 or the built-in tracker."],
+  ["Attach", "Make a layer follow a track, anchored at one frame, optionally lagging."],
+  ["Conform", "How a clip is fitted into the sequence frame: fit, fill, stretch or none, plus crop."],
+  ["Ripple", "Moving everything after an edit so no gap is left (ripple delete, ripple insert)."],
+  ["Compositor", "The renderer that draws every frame for the monitor, VFX renders and the export."],
+  ["Take", "One Ref2V generation, kept with its exact setup and seed so it can be restored."],
+  ["Preflight", "The check that runs before a Ref2V generation and lists blocks and warnings."],
+  ["Seed", "The number that fixes a generation's randomness. Same seed and settings, same result."],
+  ["Steps / NFE", "How many times the model refines its output. Turbo and Lightning adapters are trained for a small fixed number."],
+  ["CFG", "Classifier-free guidance: how hard the prompt is pushed. Distilled models are made for 1.0."],
+  ["LoRA", "A small adapter that teaches an image model a character, style or object."],
+  ["Trigger token", "The rare word that switches a LoRA's learned subject on in a prompt."],
+  ["FL2VA / Ref2VA", "MiniMax-H3's two model families: first-and-last-frame to video and audio, and references to video and audio."],
+  ["Foley", "Everyday sounds recreated in sync with the picture: steps, cloth, impacts."],
+  ["8n+1, 17n+5", "The frame counts LTX and MiniMax-H3 accept. The app snaps to the nearest legal count."],
+  ["Commit memory", "What Windows promises to back with RAM plus page file. Large models run out of this before they run out of RAM."],
+  ["Offload", "Keeping parts of a model in system RAM or on disk and moving them to the GPU when needed, to fit 16 GB."],
+  ["Proxy", "A lighter copy of media used for smooth scrubbing. Renders always use the full-quality original."],
+];
+
+function renderCatalogs() {
+  const fill = (id, rows) => { const body = $(`#${id} tbody`); if (body) body.innerHTML = rows.map((cells) => `<tr>${cells.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join(""); };
+  fill("cat-transitions-table", TRANSITIONS);
+  fill("cat-mask-table", MASK_FX);
+  fill("cat-presets-table", PRESETS);
+  const text = $("#cat-text-lists");
+  if (text) text.innerHTML = Object.entries(TEXT_MOTION).map(([group, items]) => `<h4>${esc(group)}</h4><div class="swatch-row">${items.map((item) => `<span>${esc(item)}</span>`).join("")}</div>`).join("");
+  const blend = $("#cat-blend-lists");
+  if (blend) blend.innerHTML = Object.entries(BLEND_LISTS).map(([group, items]) => `<h4>${esc(group)}</h4><div class="swatch-row">${items.map((item) => `<span>${esc(item)}</span>`).join("")}</div>`).join("");
+  const elements = $("#cat-elements-list");
+  if (elements) elements.innerHTML = ELEMENTS.map((item) => `<span>${esc(item)}</span>`).join("");
+  const trouble = $("#trouble-list");
+  if (trouble) trouble.innerHTML = TROUBLE.map(([title, body]) => `<details><summary>${esc(title)}</summary><div><p>${body}</p></div></details>`).join("");
+  const glossary = $("#glossary-table tbody");
+  if (glossary) glossary.innerHTML = GLOSSARY.map(([term, meaning]) => `<tr><td>${esc(term)}</td><td>${esc(meaning)}</td></tr>`).join("");
+  $$("input[data-filter]").forEach((input) => {
+    const table = document.getElementById(input.dataset.filter);
+    input.addEventListener("input", () => {
+      const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      $$("tbody tr", table).forEach((row) => row.classList.toggle("hidden", !terms.every((term) => row.textContent.toLowerCase().includes(term))));
+    });
+  });
+}
+
+/* ---------------------------------------------------------------- the window map */
+function wireMap() {
+  const caption = $("#map-caption");
+  const initial = caption ? caption.innerHTML : "";
+  $$("#map a").forEach((region) => {
+    const show = () => {
+      $$("#map a.lit").forEach((item) => item.classList.remove("lit"));
+      region.classList.add("lit");
+      const name = region.querySelector("b")?.textContent || region.textContent.trim();
+      const cap = (region.dataset.cap || "").replace(/^[^:]{1,40}:\s*/, "");
+      caption.innerHTML = `<b>${esc(name)}</b>: ${esc(cap)}`;
+    };
+    region.addEventListener("mouseenter", show);
+    region.addEventListener("focus", show);
+  });
+  $("#map")?.addEventListener("mouseleave", () => { $$("#map a.lit").forEach((item) => item.classList.remove("lit")); caption.innerHTML = initial; });
+}
+
+/* ---------------------------------------------------------------- contents rail */
+function wireRail() {
+  const rail = $("#rail"), toggle = $(".menu-toggle");
+  toggle?.addEventListener("click", () => {
+    const open = rail.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  rail.addEventListener("click", (event) => {
+    if (event.target.closest("a") && window.matchMedia("(max-width: 860px)").matches) {
+      rail.classList.remove("open"); toggle?.setAttribute("aria-expanded", "false");
+    }
+  });
+  const links = new Map($$("a[href^='#']", rail).map((link) => [link.getAttribute("href").slice(1), link]));
+  const targets = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+  let pending = false, last = "";
+  const spy = () => {
+    pending = false;
+    let current = targets[0];
+    for (const target of targets) { if (target.getBoundingClientRect().top <= 130) current = target; else break; }
+    if (!current || current.id === last) return;
+    last = current.id;
+    links.forEach((link, id) => link.classList.toggle("here", id === current.id));
+    const link = links.get(current.id);
+    if (link && !rail.matches(":hover") && !rail.classList.contains("open")) {
+      const box = rail.getBoundingClientRect(), at = link.getBoundingClientRect();
+      if (at.top < box.top + 40 || at.bottom > box.bottom - 40) rail.scrollTop += at.top - box.top - box.height / 3;
+    }
+  };
+  window.addEventListener("scroll", () => { if (!pending) { pending = true; requestAnimationFrame(spy); } }, { passive: true });
+  spy();
+}
+
+/* ---------------------------------------------------------------- search */
+function buildIndex() {
+  const entries = [];
+  $$("main section.chapter").forEach((section) => {
+    const chapter = section.querySelector("h2, h1")?.textContent.trim() || "";
+    const kicker = section.querySelector(".kicker")?.textContent.trim() || "";
+    let current = { id: section.id, title: chapter, where: kicker, text: "" };
+    entries.push(current);
+    [...section.children].forEach((node) => {
+      if (/^H[34]$/.test(node.tagName) && node.id) {
+        current = { id: node.id, title: node.textContent.trim(), where: chapter, text: "" };
+        entries.push(current);
+      } else if (!node.matches(".kicker, h2, h1")) {
+        current.text += " " + (node.innerText || node.textContent).replace(/\s+/g, " ");
+      }
+    });
+  });
+  return entries;
+}
+
+function wireSearch() {
+  const input = $("#q"), box = $("#results");
+  if (!input) return;
+  let index = null, active = -1;
+  const close = () => { box.classList.remove("open"); active = -1; };
+  const mark = (text, terms) => {
+    let out = esc(text);
+    terms.forEach((term) => { out = out.replace(new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "ig"), "<mark>$1</mark>"); });
+    return out;
+  };
+  const search = () => {
+    index ??= buildIndex();
+    const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (!terms.length) { close(); return; }
+    const scored = index.map((entry) => {
+      const title = entry.title.toLowerCase(), text = entry.text.toLowerCase();
+      if (!terms.every((term) => title.includes(term) || text.includes(term))) return null;
+      let score = 0;
+      terms.forEach((term) => { if (title.includes(term)) score += 10; score += Math.min(5, text.split(term).length - 1); });
+      const first = terms.map((term) => text.indexOf(term)).filter((at) => at >= 0).sort((a, b) => a - b)[0] ?? 0;
+      const snippet = entry.text.slice(Math.max(0, first - 60), first + 110).trim();
+      return { entry, score, snippet };
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 12);
+    box.innerHTML = scored.length
+      ? scored.map(({ entry, snippet }) => `<a href="#${entry.id}" role="option"><b>${mark(entry.title, terms)}</b><small>${esc(entry.where)} · …${mark(snippet, terms)}…</small></a>`).join("")
+      : `<div class="none">Nothing matches. Try one word, such as “matte” or “foley”.</div>`;
+    box.classList.add("open"); active = -1;
+  };
+  input.addEventListener("input", search);
+  input.addEventListener("focus", () => { if (input.value.trim()) search(); });
+  input.addEventListener("keydown", (event) => {
+    const items = $$("a", box);
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!items.length) return;
+      active = (active + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      items.forEach((item, i) => item.classList.toggle("active", i === active));
+      items[active].scrollIntoView({ block: "nearest" });
+    } else if (event.key === "Enter") {
+      const target = items[Math.max(0, active)];
+      if (target) { event.preventDefault(); target.click(); }
+    } else if (event.key === "Escape") {
+      input.value = ""; close(); input.blur();
+    }
+  });
+  box.addEventListener("click", (event) => { if (event.target.closest("a")) { close(); input.blur(); } });
+  document.addEventListener("click", (event) => { if (!event.target.closest(".search")) close(); });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "/" && !event.target.closest("input, textarea, select")) { event.preventDefault(); input.focus(); input.select(); }
+  });
+}
+
+renderModels();
+renderRecipes();
+renderCatalogs();
+wireMap();
+wireRail();
+wireSearch();
+})();
+</script>
+</body>
+</html>

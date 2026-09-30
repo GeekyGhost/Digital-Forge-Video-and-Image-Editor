@@ -1,0 +1,230 @@
+diff --git a/examples/dreambooth/train_dreambooth_lora_z_image.py b/examples/dreambooth/train_dreambooth_lora_z_image.py
+index e116803..1696a2b 100644
+--- a/examples/dreambooth/train_dreambooth_lora_z_image.py
++++ b/examples/dreambooth/train_dreambooth_lora_z_image.py
+@@ -507,6 +507,36 @@ def parse_args(input_args=None):
+             ' `--checkpointing_steps`, or `"latest"` to automatically select the last available checkpoint.'
+         ),
+     )
++    parser.add_argument(
++        "--initial_lora_path",
++        type=str,
++        default=None,
++        help="Initialize a new training run from standalone LoRA weights without restoring optimizer state.",
++    )
++    parser.add_argument(
++        "--aiv_assistant_lora_path",
++        type=str,
++        default=None,
++        help=(
++            "AIV Studio: a frozen LoRA kept active during training only, such as ostris' Z-Image-Turbo "
++            "training adapter. It is never saved; the trained adapter is used on the plain model."
++        ),
++    )
++    parser.add_argument(
++        "--aiv_timestep_shift",
++        type=float,
++        default=None,
++        help=(
++            "AIV Studio: override the flow-matching shift used to sample training timesteps. Z-Image Base "
++            "ships shift=6.0; 3.0 gives low-noise (fine detail) steps a larger share of training."
++        ),
++    )
++    parser.add_argument(
++        "--aiv_pause_file",
++        type=str,
++        default=None,
++        help="AIV Studio cooperative pause request file. Training saves a full checkpoint and exits cleanly.",
++    )
+     parser.add_argument(
+         "--gradient_accumulation_steps",
+         type=int,
+@@ -1189,6 +1219,11 @@ def main(args):
+         subfolder="scheduler",
+         revision=args.revision,
+     )
++    if args.aiv_timestep_shift is not None:
++        noise_scheduler = FlowMatchEulerDiscreteScheduler.from_config(
++            noise_scheduler.config, shift=args.aiv_timestep_shift
++        )
++        logger.info(f"Training timesteps sampled with flow shift {args.aiv_timestep_shift}")
+     noise_scheduler_copy = copy.deepcopy(noise_scheduler)
+     vae = AutoencoderKL.from_pretrained(
+         args.pretrained_model_name_or_path,
+@@ -1291,6 +1326,58 @@ def main(args):
+     )
+     transformer.add_adapter(transformer_lora_config)
+ 
++    # A distilled model (Z-Image-Turbo) loses its few-step behaviour when a LoRA is trained on it
++    # directly. ostris' training adapter partially undoes the distillation; keeping it active and
++    # frozen while the new LoRA trains means the new LoRA learns only the concept, and removing
++    # the adapter at inference leaves that concept on the intact distilled model. It is loaded as a
++    # separate PEFT adapter rather than merged so it also works on a 4-bit quantized transformer.
++    if args.aiv_assistant_lora_path:
++        assistant_path = Path(args.aiv_assistant_lora_path)
++        assistant_state_dict = ZImagePipeline.lora_state_dict(
++            str(assistant_path.parent), weight_name=assistant_path.name
++        )
++        ZImagePipeline.load_lora_into_transformer(
++            assistant_state_dict, transformer=transformer, adapter_name="aiv_assistant"
++        )
++        transformer.set_adapters(["aiv_assistant", "default"], [1.0, 1.0])
++        # set_adapters marks every active adapter trainable; only the new LoRA may learn.
++        frozen = 0
++        for name, parameter in transformer.named_parameters():
++            if ".aiv_assistant." in name:
++                parameter.requires_grad_(False)
++                frozen += 1
++        if frozen == 0:
++            raise ValueError(f"Training adapter installed no LoRA layers: {assistant_path}")
++        logger.info(f"Training with frozen assistant adapter {assistant_path} ({frozen} tensors)")
++
++    # A standalone adapter can seed a new training phase. This intentionally differs from
++    # --resume_from_checkpoint: only LoRA tensors are restored, while the optimizer, scheduler,
++    # random state, and global step begin fresh.
++    if args.initial_lora_path:
++        initial_lora = Path(args.initial_lora_path)
++        if initial_lora.is_file():
++            lora_state_dict = ZImagePipeline.lora_state_dict(
++                str(initial_lora.parent), weight_name=initial_lora.name
++            )
++        else:
++            lora_state_dict = ZImagePipeline.lora_state_dict(str(initial_lora))
++        transformer_state_dict = {
++            k.replace("transformer.", ""): v
++            for k, v in lora_state_dict.items()
++            if k.startswith("transformer.")
++        }
++        transformer_state_dict = convert_unet_state_dict_to_peft(transformer_state_dict)
++        incompatible_keys = set_peft_model_state_dict(
++            transformer, transformer_state_dict, adapter_name="default"
++        )
++        unexpected_keys = getattr(incompatible_keys, "unexpected_keys", None)
++        if unexpected_keys:
++            raise ValueError(
++                "Initial LoRA is incompatible with this Z-Image adapter configuration: "
++                f"{unexpected_keys}"
++            )
++        logger.info(f"Initialized training from LoRA weights at {initial_lora}")
++
+     def unwrap_model(model):
+         model = accelerator.unwrap_model(model)
+         model = model._orig_mod if is_compiled_module(model) else model
+@@ -1654,6 +1741,7 @@ def main(args):
+     logger.info(f"  Total optimization steps = {args.max_train_steps}")
+     global_step = 0
+     first_epoch = 0
++    resume_step = 0
+ 
+     # Potentially load in the weights and states from a previous save
+     if args.resume_from_checkpoint:
+@@ -1679,6 +1767,9 @@ def main(args):
+ 
+             initial_global_step = global_step
+             first_epoch = global_step // num_update_steps_per_epoch
++            resume_step = (
++                global_step % num_update_steps_per_epoch
++            ) * args.gradient_accumulation_steps
+ 
+     else:
+         initial_global_step = 0
+@@ -1702,10 +1793,34 @@ def main(args):
+             sigma = sigma.unsqueeze(-1)
+         return sigma
+ 
++    pause_checkpoint = None
++
++    def save_training_checkpoint(step):
++        if args.checkpoints_total_limit is not None:
++            checkpoints = os.listdir(args.output_dir)
++            checkpoints = [d for d in checkpoints if d.startswith("checkpoint")]
++            checkpoints = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))
++            if len(checkpoints) >= args.checkpoints_total_limit:
++                num_to_remove = len(checkpoints) - args.checkpoints_total_limit + 1
++                removing_checkpoints = checkpoints[0:num_to_remove]
++                logger.info(
++                    f"{len(checkpoints)} checkpoints already exist, removing "
++                    f"{len(removing_checkpoints)} checkpoints"
++                )
++                logger.info(f"removing checkpoints: {', '.join(removing_checkpoints)}")
++                for removing_checkpoint in removing_checkpoints:
++                    shutil.rmtree(os.path.join(args.output_dir, removing_checkpoint))
++        save_path = os.path.join(args.output_dir, f"checkpoint-{step}")
++        accelerator.save_state(save_path)
++        logger.info(f"Saved state to {save_path}")
++        return save_path
++
+     for epoch in range(first_epoch, args.num_train_epochs):
+         transformer.train()
+ 
+         for step, batch in enumerate(train_dataloader):
++            if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step:
++                continue
+             models_to_accumulate = [transformer]
+             prompts = batch["prompts"]
+ 
+@@ -1808,30 +1923,15 @@ def main(args):
+                 global_step += 1
+ 
+                 if accelerator.is_main_process or is_fsdp:
++                    saved_checkpoint = None
+                     if global_step % args.checkpointing_steps == 0:
+-                        # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
+-                        if args.checkpoints_total_limit is not None:
+-                            checkpoints = os.listdir(args.output_dir)
+-                            checkpoints = [d for d in checkpoints if d.startswith("checkpoint")]
+-                            checkpoints = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))
+-
+-                            # before we save the new checkpoint, we need to have at _most_ `checkpoints_total_limit - 1` checkpoints
+-                            if len(checkpoints) >= args.checkpoints_total_limit:
+-                                num_to_remove = len(checkpoints) - args.checkpoints_total_limit + 1
+-                                removing_checkpoints = checkpoints[0:num_to_remove]
+-
+-                                logger.info(
+-                                    f"{len(checkpoints)} checkpoints already exist, removing {len(removing_checkpoints)} checkpoints"
+-                                )
+-                                logger.info(f"removing checkpoints: {', '.join(removing_checkpoints)}")
+-
+-                                for removing_checkpoint in removing_checkpoints:
+-                                    removing_checkpoint = os.path.join(args.output_dir, removing_checkpoint)
+-                                    shutil.rmtree(removing_checkpoint)
+-
+-                        save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
+-                        accelerator.save_state(save_path)
+-                        logger.info(f"Saved state to {save_path}")
++                        saved_checkpoint = save_training_checkpoint(global_step)
++                    if (
++                        args.aiv_pause_file
++                        and Path(args.aiv_pause_file).is_file()
++                        and global_step < args.max_train_steps
++                    ):
++                        pause_checkpoint = saved_checkpoint or save_training_checkpoint(global_step)
+ 
+             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
+             progress_bar.set_postfix(**logs)
+@@ -1839,6 +1939,11 @@ def main(args):
+ 
+             if global_step >= args.max_train_steps:
+                 break
++            if pause_checkpoint is not None:
++                break
++
++        if pause_checkpoint is not None:
++            break
+ 
+         if accelerator.is_main_process:
+             if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
+@@ -1862,6 +1967,13 @@ def main(args):
+                 del pipeline
+                 free_memory()
+ 
++    if pause_checkpoint is not None:
++        accelerator.wait_for_everyone()
++        if accelerator.is_main_process:
++            print(f"AIV_PAUSED:{pause_checkpoint}", flush=True)
++        accelerator.end_training()
++        return
++
+     # Save the lora layers
+     accelerator.wait_for_everyone()
+ 

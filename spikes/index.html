@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VFX Phase 0 spikes</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { margin: 0; padding: 16px; background: #07090c; color: #d8e2ea; font: 13px/1.45 system-ui, sans-serif; }
+      h1 { font-size: 18px; margin: 0 0 4px; }
+      p { margin: 0 0 12px; color: #8ea0ae; }
+      .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+      button { padding: 7px 12px; border: 1px solid #2c3b47; border-radius: 4px; background: #111820; color: #e8f0f6; cursor: pointer; }
+      button.primary { border-color: #00f0ff; }
+      button:disabled { opacity: .5; cursor: default; }
+      #status { font-family: ui-monospace, monospace; color: #ffcf33; }
+      .panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; height: calc(100vh - 120px); }
+      pre { margin: 0; padding: 10px; overflow: auto; border: 1px solid #1d2832; border-radius: 4px; background: #03050a; font: 11px/1.4 ui-monospace, monospace; white-space: pre-wrap; }
+      @media (max-width: 800px) { .panes { grid-template-columns: 1fr; height: auto; } pre { max-height: 50vh; } }
+    </style>
+  </head>
+  <body>
+    <h1>VFX Phase 0 spikes</h1>
+    <p>Measures GPU, decode, readback and alpha paths in this WebView. Results are saved to <code>scratch\vfx-spikes\</code>. Close this window when done.</p>
+    <div class="bar">
+      <button id="run-all" class="primary">Run all</button>
+      <button id="run-gpu">0.2 GPU</button>
+      <button id="run-decode">0.3 Decode</button>
+      <button id="run-readback">0.4 Readback</button>
+      <button id="run-alpha">0.5 Alpha</button>
+      <button id="run-wan-alpha" title="Needs Setup-Wan-Alpha.bat first. Four generations; expect a long run.">0.6 Wan Alpha</button>
+      <button id="run-parity" title="VFX Phases 1-3: old Photo Edit compositor against the GPU renderer, pixel by pixel, including masks, clipping, track mattes, keys, media layers at several frames and matrix rain.">Compositor parity</button>
+      <button id="run-frames" title="VFX Phase 3: the video/element frame store on the test media (seek exactness, playback fps, stacked proxy) and 1500 px composition speed with element layers.">Phase 3 frames</button>
+      <button id="copy">Copy results</button>
+      <span id="status">idle</span>
+    </div>
+    <div class="panes">
+      <pre id="log"></pre>
+      <pre id="results">{}</pre>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

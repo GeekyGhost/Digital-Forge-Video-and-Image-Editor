@@ -1,0 +1,56 @@
+[project]
+name = "aiv-ai-runtime"
+version = "0.1.0"
+description = "Isolated model adapter runtime for Digital Forge Video Studio"
+requires-python = ">=3.10"
+dependencies = [
+  "huggingface-hub>=0.27",
+  "psutil>=6.1",
+  "pydantic>=2.10",
+  "safetensors>=0.5",
+]
+
+[project.optional-dependencies]
+inference = [
+  "accelerate>=1.2",
+  "numpy>=1.26",
+  "pillow>=11",
+  # Required by the bundled Kiwi-Edit pipeline, its Wan VAE, and the Qwen2.5-VL encoder it
+  # vendors.
+  #
+  # torch and torchvision are deliberately absent: they must come from the CUDA wheel index
+  # (see scripts/setup-and-launch.ps1), because the PyPI wheels are CPU-only and installing
+  # them here would silently replace a working CUDA build.
+  # Upper bounds are load-bearing, not caution. The pack vendors a copy of the Qwen2.5-VL
+  # modeling code from the transformers 4.x era; transformers 5.x removed the "default" entry
+  # from ROPE_INIT_FUNCTIONS, so that vendored code dies with KeyError: 'default' while building
+  # the text model. Qwen2.5-VL support starts at 4.49.
+  "transformers>=4.49,<5",
+  # The pack was published against diffusers 0.32 and needs WanTransformer3DModel (0.33+).
+  "diffusers>=0.33,<0.40",
+  "einops>=0.8",
+  "requests>=2.32",
+  "tqdm>=4.67",
+  # The vendored Qwen2.5-VL encoder asks transformers for a video decode backend. We hand it
+  # decoded PIL frames rather than a file, but transformers probes for one while loading the
+  # remote modeling file and warns loudly when none is present.
+  "av>=13",
+]
+# SAM 2 is a separate extra: it installs from git and needs build tooling, so a failure there
+# must not take the rest of the inference stack down with it.
+#
+# The distribution name is "sam-2" with a hyphen even though the import name is "sam2". Requesting
+# "sam2" fails pip's name-consistency check, and worse, an unrelated project called sam2 exists on
+# PyPI -- so a naive fallback would silently install the wrong library.
+masking = ["sam-2 @ git+https://github.com/facebookresearch/sam2.git"]
+dev = ["pytest>=8.3", "ruff>=0.8"]
+
+[tool.setuptools.packages.find]
+# MOSS lives beside the application worker only as source for its dedicated runtime. Keep it out
+# of the main editable distribution so setup-and-launch cannot merge two incompatible AI stacks.
+include = ["aiv_runtime*"]
+exclude = ["moss_soundeffect_v2*", "tests*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

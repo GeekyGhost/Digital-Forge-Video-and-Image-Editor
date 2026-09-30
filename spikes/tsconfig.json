@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../node_modules/.tmp/tsconfig.spikes.tsbuildinfo",
+    "allowJs": true
+  },
+  "include": ["src", "vendor/mp4box/mp4box.all.d.mts"],
+  "exclude": []
+}

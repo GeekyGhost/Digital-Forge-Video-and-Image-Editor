@@ -1,0 +1,63 @@
+# ---- dependencies & build output ----
+node_modules/
+dist/
+target/
+src-tauri/target/
+Releases/
+*.egg-info/
+__pycache__/
+*.pyc
+
+# ---- python environments ----
+.venv/
+vendor/**/.venv/
+# App-owned embedded runtimes are installed locally and can be several GB once CUDA wheels land.
+runtimes/
+
+# ---- vendored upstream sources ----
+# The top-level vendor/ is cloned separately; see "Vendored sources" in README.md.
+# (Anchored with a leading slash so small in-tree vendored libraries such as
+# src/render/video/vendor/mp4box are still committed.)
+/vendor/
+
+# ---- model weights & caches ----
+# Hundreds of GB. Installed with scripts/models.py, never committed.
+models/**
+!models/.gitkeep
+!models/manifests/
+!models/manifests/**
+cache/**
+!cache/.gitkeep
+.ruff_cache/
+.pytest_cache/
+
+# ---- user data ----
+# Local projects, generated media and renders. Personal working data.
+projects/
+exports/
+elements/
+*.aivproj.autosave
+
+# ---- local state & secrets ----
+.aiv/
+.env
+.stale-root-crate/
+
+# ---- os noise ----
+.DS_Store
+Thumbs.db
+
+# scratch: device bridge cannot delete, so removals land here
+_to_delete/
+
+# ---- experiment scratch ----
+# One-off probes, qualification takes and the unpacked comfy-kitchen oracle deps (several GB of
+# torch). Findings belong in docs/ and memory; the working files do not belong in history.
+scratch/
+backups/
+tmp/
+.lab-stage/
+ai-runtime/tests/.tmp/
+
+# ---- kept in the development copy only ----
+/brand/

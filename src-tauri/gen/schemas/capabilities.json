@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Digital Forge Video Studio main-window permissions (plus the VFX Phase 0 spike window, which only opens with AIV_SPIKES=1)","local":true,"windows":["main","spikes"],"permissions":["core:default","dialog:default"]}}

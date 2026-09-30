@@ -1,0 +1,17 @@
+{
+  "id": "z-image-base",
+  "name": "Z-Image Base — Creative generation and LoRA training",
+  "description": "The undistilled Z-Image foundation model for diverse Creative-mode generation, negative prompts, CFG, and LoRA training.",
+  "estimatedSizeGiB": 21,
+  "minimumFreeAfterInstallGiB": 30,
+  "license": {
+    "name": "Apache License 2.0",
+    "url": "https://huggingface.co/Tongyi-MAI/Z-Image",
+    "requiresAcceptance": true,
+    "note": "Review the model card before commercial use or redistribution."
+  },
+  "capabilities": ["text-to-image", "creative-generation", "negative-prompting", "lora-inference", "lora-training"],
+  "sources": [
+    { "repoId": "Tongyi-MAI/Z-Image", "destination": "Z-Image", "allowPatterns": ["*"] }
+  ]
+}
