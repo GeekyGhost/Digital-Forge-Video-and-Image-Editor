@@ -1,5 +1,7 @@
 # Digital Forge — Video and Image Editor
 
+#BETA BUILD - This is a beta build of a massive ststem. Keep this in mind if you decide to test it. I have not ran this on a fresh install yet. This is the culmination of a few years worth of work and itterations. After testing cleanup and finalizing a release. 
+
 A local-first, non-destructive video editor built around a single NVIDIA RTX GPU with 16 GB VRAM.
 The editor is fully useful with no AI model installed; generation, editing, restoration,
 transcription, masking and interpolation all run as replaceable background adapters.
